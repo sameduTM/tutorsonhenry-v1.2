@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order — Tutorsonhenry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+    <!-- Top Header -->
+    <header class="w-full bg-white shadow-sm py-4 px-6 flex items-center justify-between sticky top-0 z-50">
+
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+            <a href="/">
+                <img src="{{ images.logo }}" alt="Logo" class="h-10 w-auto">
+            </a>
+            <a href="/">
+                <span class="text-xl font-bold text-gray-800">Tutorsonhenry</span>
+            </a>
+        </div>
+
+        <!-- Center Links (Desktop) -->
+        <nav class="hidden md:flex space-x-6 text-gray-700 font-medium" id="desktopNav">
+            <a href="/messages" class="hover:text-indigo-600 transition">Messages</a>
+            <a href="/place-order" class="hover:text-indigo-600 transition font-semibold text-indigo-600">Place
+                Order</a>
+            <a href="/orders" class="hover:text-indigo-600 transition">My Orders</a>
+        </nav>
+
+        <!-- Mobile Controls -->
+        <div class="md:hidden flex items-center gap-3">
+            <!-- Sidebar toggle -->
+            <button id="sidebarBtn" class="text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
+
+            <!-- Hamburger menu for center links -->
+            <button id="hamburgerBtn" class="text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Right Side -->
+        <div class="flex items-center space-x-4">
+            <div class="hidden sm:block bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg font-semibold animate-pulse">
+                👋 Hi, {{ user.name }}
+            </div>
+            <a href="/logout"
+                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition">
+                Logout
+            </a>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <nav id="mobileNav"
+        class="hidden absolute top-16 left-0 w-full bg-white shadow-md flex flex-col space-y-2 p-4 md:hidden z-40">
+        <a href="/messages" class="py-2 px-4 hover:bg-gray-100 rounded">Messages</a>
+        <a href="/place-order" class="py-2 px-4 hover:bg-gray-100 rounded font-semibold text-indigo-600">Place Order</a>
+        <a href="/orders" class="py-2 px-4 hover:bg-gray-100 rounded">My Orders</a>
+    </nav>
+
+    <div class="flex h-screen pt-2">
+
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white min-h-screen p-6 shadow-lg sticky top-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50">
+
+            <div class="mt-6 mb-8">
+                <h2 class="text-2xl font-bold mb-1">Welcome, {{ user.name }}!</h2>
+                <p class="text-sm text-gray-200">Ready to place a new order?</p>
+            </div>
+
+            <nav class="flex flex-col gap-3">
+                <a href="/" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>🏠</span>
+                    <span>Back to Homepage</span>
+                </a>
+                <a href="/topup" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>💰</span>
+                    <span>Top Up Wallet ($0)</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>📞</span>
+                    <span>VIP WhatsApp Support</span>
+                </a>
+                <a href="/messages" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>✉️</span>
+                    <span>Messages (0)</span>
+                </a>
+                <a href="/profile" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>👤</span>
+                    <span>My Profile</span>
+                </a>
+                <a href="/logout" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </a>
+                <a href="/place-order" class="flex items-center gap-3 px-4 py-2 rounded-lg bg-blue-500 shadow-lg">
+                    <span>📝</span>
+                    <span>Place Order</span>
+                </a>
+                <a href="/orders" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>📦</span>
+                    <span>My Orders (1)</span>
+                </a>
+                <a href="/referrals" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>💸</span>
+                    <span>Earn from Referrals</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-8">
+
+            <!-- Page Intro -->
+            <div class="mb-8 bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl shadow-md">
+                <h1 class="text-4xl font-extrabold text-gray-800 mb-3">
+                    Place a New Order
+                </h1>
+                <p class="text-gray-600 text-lg">
+                    Fill in the details below, and a <span class="font-semibold text-indigo-600">professional
+                        writer</span> will start working on your assignment promptly.
+                </p>
+            </div>
+
+            <div class="bg-white shadow-lg rounded-xl p-8">
+
+                <form action="/place-order" method="POST" enctype="multipart/form-data"
+                    class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Title -->
+                    <div class="col-span-full">
+                        <label class="block font-semibold mb-1">Title of Assignment</label>
+                        <input type="text" name="title" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
+                    </div>
+
+                    <!-- Type -->
+                    <div>
+                        <label class="block font-semibold mb-1">Type of Paper</label>
+                        <select name="type" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
+                            <option value="">Select Type</option>
+                            <option>Essay</option>
+                            <option>Research Paper</option>
+                            <option>Case Study</option>
+                            <option>Assignment</option>
+                            <option>Discussion Post</option>
+                            <option>Report</option>
+                        </select>
+                    </div>
+
+                    <!-- Subject -->
+                    <div>
+                        <label class="block font-semibold mb-1">Subject</label>
+                        <select name="subject" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
+                            <option value="">Select Subject</option>
+                            <option>English</option>
+                            <option>Nursing</option>
+                            <option>History</option>
+                            <option>Business</option>
+                            <option>Law</option>
+                            <option>Psychology</option>
+                        </select>
+                    </div>
+
+                    <!-- Academic Level -->
+                    <div>
+                        <label class="block font-semibold mb-1">Academic Level</label>
+                        <select name="level" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
+                            <option value="">Select Level</option>
+                            <option>High School</option>
+                            <option>College</option>
+                            <option>Undergraduate</option>
+                            <option>Masters</option>
+                            <option>PhD</option>
+                        </select>
+                    </div>
+
+                    <!-- Writer Category -->
+                    <div>
+                        <label class="block font-semibold mb-1">Writer Category</label>
+                        <select name="writerCategory" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
+                            <option>Standard</option>
+                            <option>Advanced</option>
+                            <option>Expert</option>
+                        </select>
+                    </div>
+
+                    <!-- Deadline -->
+                    <div>
+                        <label class="block font-semibold mb-1">Deadline</label>
+                        <input type="datetime-local" name="deadline" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
+                    </div>
+
+                    <!-- Pages -->
+                    <div>
+                        <label class="block font-semibold mb-1">Pages</label>
+                        <input type="number" name="pages" min="1" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
+                    </div>
+
+                    <!-- Spacing -->
+                    <div>
+                        <label class="block font-semibold mb-1">Spacing</label>
+                        <select name="spacing" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
+                            <option>Double Spaced</option>
+                            <option>Single Spaced</option>
+                        </select>
+                    </div>
+
+                    <!-- File upload -->
+                    <div class="col-span-full">
+                        <label class="block font-semibold mb-1">Upload Files</label>
+                        <input type="file" name="files" multiple
+                            class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-600">
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="col-span-full">
+                        <label class="block font-semibold mb-1">Assignment Instructions</label>
+                        <textarea name="instructions" rows="5" required
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600"></textarea>
+                    </div>
+
+                    <!-- PRICE (Auto-updated) -->
+                    <div class="col-span-full bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <h3 class="text-lg font-semibold mb-2 text-blue-800">Estimated Price</h3>
+                        <p class="text-3xl font-bold text-blue-700" id="priceDisplay">$0</p>
+                        <p class="text-gray-500 text-sm">Price updates automatically based on page count.</p>
+                    </div>
+
+                    <!-- Hidden price input (REQUIRED) -->
+                    <input type="hidden" name="price" id="priceInput" value="0">
+
+
+                    <!-- Submit -->
+                    <div class="col-span-full mt-6">
+                        <button type="submit"
+                            class="w-full p-4 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700">
+                            Submit Order
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Hamburger toggle
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        hamburgerBtn.addEventListener('click', () => {
+            mobileNav.classList.toggle('hidden');
+        });
+
+        // Sidebar toggle (mobile)
+        const sidebarBtn = document.getElementById('sidebarBtn');
+        const sidebar = document.getElementById('sidebar');
+        sidebarBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Price Calculator
+        const pagesInput = document.querySelector('input[name="pages"]');
+        const priceInput = document.getElementById('priceInput');
+        const priceDisplay = document.getElementById('priceDisplay');
+
+        const pricePerPage = 10;
+
+        function updatePrice() {
+            const pages = Number(pagesInput.value) || 0;
+            const price = pages * pricePerPage;
+            priceDisplay.textContent = `$${price}`;
+            priceInput.value = price;
+        }
+
+        pagesInput.addEventListener('input', updatePrice);
+
+        document.addEventListener("DOMContentLoaded", updatePrice);
+
+    </script>
+
+</body>
+
+</html>

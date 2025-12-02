@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard — Tutorsonhenry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-indigo-100 font-sans">
+
+    <!-- Top Header -->
+    <header class="w-full bg-white shadow-sm py-4 px-6 flex items-center justify-between sticky top-0 z-50">
+
+        <!-- Left: Logo -->
+        <div class="flex items-center space-x-3">
+            <!-- Hamburger for small screens -->
+            <button id="menu-btn" class="md:hidden text-gray-700 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <a href="/" class="flex items-center space-x-2">
+                <img src="{{ images.logo }}" alt="Logo" class="h-10 w-auto">
+                <span class="text-xl font-bold text-gray-800">Tutorsonhenry</span>
+            </a>
+        </div>
+
+        <!-- Center Links (hidden on small screens) -->
+        <nav class="hidden md:flex space-x-6 font-medium">
+            <a href="/messages"
+                class="relative px-3 py-2 text-white hover:text-white hover:after:w-full after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:bg-white after:w-0 after:transition-all">
+                Messages
+            </a>
+            <a href="/place-order"
+                class="relative px-3 py-2 text-white font-semibold hover:after:w-full after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:bg-white after:w-0 after:transition-all">
+                Place Order
+            </a>
+        </nav>
+
+
+        <!-- Right Side -->
+        <div class="flex items-center space-x-4">
+            <!-- User greeting -->
+            <div class="hidden sm:block bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg font-semibold">
+                👋 Hi, {{ user.name }}
+            </div>
+
+            <!-- Logout -->
+            <a href="/logout" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow">
+                Logout
+            </a>
+        </div>
+    </header>
+
+    <div class="flex min-h-screen">
+
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="fixed md:relative w-64 bg-gradient-to-b from-blue-700 to-indigo-800 text-white min-h-screen p-6 shadow-xl transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40">
+            <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+
+            <!-- Welcome -->
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-1">Welcome, {{ user.name }}!</h3>
+                <p class="text-sm text-white/80">Check your stats and orders</p>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="space-y-3">
+                <a href="/" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>🏠</span> Back to Homepage
+                </a>
+                <a href="/topup" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>💰</span> Top Up Wallet (${{ user.walletBalance | default(0) }})
+                </a>
+                <a href="/messages" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>✉️</span> Messages ({{ user.messages | default(0) }})
+                </a>
+                <a href="/place-order"
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg bg-blue-500 text-white transition">
+                    <span>📝</span> Place Order
+                </a>
+                <a href="/orders" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>📦</span> My Orders ({{ user.ordersCount | default(0) }})
+                </a>
+                <a href="/profile" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>👤</span> My Profile
+                </a>
+                <a href="/logout" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                    <span>🚪</span> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-8 max-w-5xl mx-auto">
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+                    <h3 class="text-lg font-semibold mb-1">Bidding Orders</h3>
+                    <p class="text-3xl font-bold text-blue-600">{{ stats.biddingOrders | default(0) }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+                    <h3 class="text-lg font-semibold mb-1">Approved</h3>
+                    <p class="text-3xl font-bold text-green-600">{{ stats.approved | default(0) }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+                    <h3 class="text-lg font-semibold mb-1">Cancelled</h3>
+                    <p class="text-3xl font-bold text-red-600">{{ stats.cancelled | default(0) }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+                    <h3 class="text-lg font-semibold mb-1">Wallet Balance</h3>
+                    <p class="text-3xl font-bold text-blue-600">${{ user.walletBalance | default(0) }}</p>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="bg-white p-6 rounded-xl shadow mb-10">
+                <h2 class="text-xl font-bold mb-4">My Orders</h2>
+                <table class="w-full table-auto border-collapse border border-gray-300 text-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border p-3 text-left">#</th>
+                            <th class="border p-3 text-left">Title</th>
+                            <th class="border p-3 text-left">Type</th>
+                            <th class="border p-3 text-left">Pages</th>
+                            <th class="border p-3 text-left">Deadline</th>
+                            <th class="border p-3 text-left">Status</th>
+                            <th class="border p-3 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="border p-2">{{ order.id }}</td>
+                            <td class="border p-2">{{ order.title }}</td>
+                            <td class="border p-2">{{ order.type }}</td>
+                            <td class="border p-2">{{ order.pages }}</td>
+                            <td class="border p-2">{{ order.deadline }}</td>
+                            <td class="border p-2">
+                                <span class="px-2 py-1 rounded-lg text-sm font-semibold
+                                    {% if order.status == 'Pending' %} bg-yellow-200 text-yellow-800
+                                    {% elif order.status == 'In Progress' %} bg-blue-200 text-blue-800
+                                    {% elif order.status == 'Completed' %} bg-green-200 text-green-800
+                                    {% elif order.status == 'Cancelled' %} bg-red-200 text-red-800 {% endif %}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td class="border p-2 text-center">
+                                <a href="/orders/{{ order.id }}" class="text-blue-600 hover:underline">View</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="border p-3 text-center text-gray-500">
+                                No orders found. <a href="/place-order" class="text-blue-600 hover:underline">Place a
+                                    new order</a>.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="mt-6 flex justify-center space-x-2">
+                    {% if currentPage > 1 %}
+                    <a href="?page={{ currentPage - 1 }}"
+                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&laquo;
+                        Prev</a>
+                    {% endif %}
+                    {% for i in (1..totalPages) %}
+                    <a href="?page={{ i }}"
+                        class="px-3 py-1 rounded {% if i == currentPage %}bg-blue-500 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">
+                        {{ i }}
+                    </a>
+
+                    {% endfor %}
+                    {% if currentPage < totalPages %} <a href="?page={{ currentPage + 1 }}"
+                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next
+                        &raquo;</a>
+                        {% endif %}
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+        const btn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+
+        btn.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+    </script>
+</body>
+
+</html>

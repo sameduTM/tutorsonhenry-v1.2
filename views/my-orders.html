@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders — Tutorsonhenry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+    <!-- Top Header -->
+    <header class="w-full bg-white shadow-sm py-4 px-6 flex items-center justify-between relative">
+
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+            <a href="/">
+                <img src="{{ images.logo }}" alt="Logo" class="h-10 w-auto">
+            </a>
+            <a href="/">
+                <span class="text-xl font-bold text-gray-800">Tutorsonhenry</span>
+            </a>
+        </div>
+
+        <!-- Center Links (Desktop) -->
+        <nav class="hidden md:flex space-x-6 text-gray-700 font-medium">
+            <a href="/messages" class="hover:text-indigo-600 transition">Messages</a>
+            <a href="/place-order" class="hover:text-indigo-600 transition">Place Order</a>
+            <a href="/orders" class="hover:text-indigo-600 transition">My Orders</a>
+        </nav>
+
+        <!-- Hamburger Menu (Mobile) -->
+        <div class="md:hidden relative">
+            <button id="hamburgerBtn" class="focus:outline-none">
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
+
+            <div id="mobileMenu"
+                class="hidden absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg flex flex-col z-50">
+                <a href="/messages" class="px-4 py-2 hover:bg-indigo-100 text-gray-700 transition">Messages</a>
+                <a href="/place-order" class="px-4 py-2 hover:bg-indigo-100 text-gray-700 transition">Place Order</a>
+                <a href="/orders" class="px-4 py-2 hover:bg-indigo-100 text-gray-700 transition">My Orders</a>
+            </div>
+        </div>
+
+        <!-- Right Side -->
+        <div class="flex items-center space-x-4">
+            <div class="hidden sm:block bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg font-semibold">
+                👋 Hi, {{ user.name }}
+            </div>
+            <a href="/logout"
+                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow">Logout</a>
+        </div>
+
+    </header>
+
+    <div class="flex h-screen">
+
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white min-h-screen p-6 shadow-lg">
+
+            <!-- Brand -->
+            <div class="p-6 flex flex-col items-center border-b border-white/20">
+                <div class="text-2xl font-bold mb-2">Tutorsonhenry</div>
+                <p class="text-gray-200 text-sm">Your Dashboard</p>
+            </div>
+
+            <!-- Welcome -->
+            <div class="mt-6 mb-8">
+                <h2 class="text-2xl font-bold mb-1">Welcome, {{ user.name }}!</h2>
+                <p class="text-sm text-gray-200">Check your current and past orders</p>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex flex-col gap-3">
+                <a href="/" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>🏠</span>
+                    <span>Back to Homepage</span>
+                </a>
+                <a href="/place-order"
+                    class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>📝</span>
+                    <span>Place Order</span>
+                </a>
+                <a href="/orders" class="flex items-center gap-3 px-4 py-2 rounded-lg bg-blue-500">
+                    <span>📦</span>
+                    <span>My Orders</span>
+                </a>
+                <a href="/profile" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
+                    <span>👤</span>
+                    <span>My Profile</span>
+                </a>
+                <a href="/logout" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-8">
+
+            <!-- Page Title -->
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">My Orders</h1>
+                <p class="text-gray-600 mt-1">Here’s a summary of your active and completed orders.</p>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="bg-white shadow-lg rounded-xl p-6 mb-6">
+                <table class="w-full table-auto border-collapse border border-gray-300 text-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border p-3 text-left">#</th>
+                            <th class="border p-3 text-left">Title</th>
+                            <th class="border p-3 text-left">Type</th>
+                            <th class="border p-3 text-left">Pages</th>
+                            <th class="border p-3 text-left">Deadline</th>
+                            <th class="border p-3 text-left">Status</th>
+                            <th class="border p-3 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="border p-2">{{ order.id }}</td>
+                            <td class="border p-2">{{ order.title }}</td>
+                            <td class="border p-2">{{ order.type }}</td>
+                            <td class="border p-2">{{ order.pages }}</td>
+                            <td class="border p-2">{{ order.deadline }}</td>
+                            <td class="border p-2">
+                                <span class="px-2 py-1 rounded-lg text-sm font-semibold
+                                    {% if order.status == 'Pending' %} bg-yellow-200 text-yellow-800
+                                    {% elif order.status == 'In Progress' %} bg-blue-200 text-blue-800
+                                    {% elif order.status == 'Completed' %} bg-green-200 text-green-800
+                                    {% elif order.status == 'Cancelled' %} bg-red-200 text-red-800 {% endif %}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td class="border p-2 text-center">
+                                <a href="/orders/{{ order.id }}" class="text-blue-600 hover:underline">View</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="border p-3 text-center text-gray-500">
+                                No orders found. <a href="/place-order" class="text-blue-600 hover:underline">Place a
+                                    new order</a>.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if totalPages > 1 %}
+            <div class="flex justify-center space-x-2 mb-6">
+                {% if currentPage > 1 %}
+                <a href="?page={{ currentPage-1 }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&laquo;
+                    Prev</a>
+                {% endif %}
+
+                {% for i in 1..totalPages %}
+                <a href="?page={{ i }}"
+                    class="px-3 py-1 rounded {% if i == currentPage %}bg-blue-500 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">
+                    {{ i }}
+                </a>
+                {% endfor %}
+
+                {% if currentPage < totalPages %} <a href="?page={{ currentPage+1 }}"
+                    class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next &raquo;</a>
+                    {% endif %}
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+
+    <!-- Hamburger Menu Toggle Script -->
+    <script>
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        hamburgerBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (!hamburgerBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
+
+</body>
+
+</html>
