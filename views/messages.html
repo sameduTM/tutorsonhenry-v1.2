@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ images.logo }}">
+    <title>Messages — Tutorsonhenry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        slate: { 850: '#1e293b', 900: '#0f172a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar for Chat */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-900 h-screen flex overflow-hidden">
+
+    <aside id="sidebar"
+        class="fixed md:relative z-40 w-72 bg-slate-900 text-gray-400 h-full flex flex-col shadow-2xl transition-transform duration-300 transform -translate-x-full md:translate-x-0">
+
+        <div class="h-16 flex items-center px-6 border-b border-gray-800 bg-slate-900">
+            <a href="/" class="flex items-center gap-3">
+                <img src="{{ images.logo }}" alt="Logo" class="h-8 w-auto brightness-0 invert">
+                <span class="text-white font-bold text-lg tracking-wide">Tutorsonhenry</span>
+            </a>
+            <button id="closeSidebarBtn" class="md:hidden ml-auto text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-6 border-b border-gray-800">
+            <div class="flex items-center gap-3">
+                <div
+                    class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                    {{ (user.name or 'User') | first | upper }}
+                </div>
+                <div>
+                    <h4 class="text-white text-sm font-semibold truncate w-32">{{ user.name }}</h4>
+                    <p class="text-xs text-gray-500">Student Account</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Main</p>
+
+            <a href="/profile"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                    </path>
+                </svg>
+                <span class="font-medium">Overview</span>
+            </a>
+
+            <a href="/place-order"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span class="font-medium">Place New Order</span>
+            </a>
+
+            <a href="/orders"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                    </path>
+                </svg>
+                <span class="font-medium">My Orders</span>
+            </a>
+
+            <a href="/messages"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-900/20 transition-all justify-between">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                        </path>
+                    </svg>
+                    <span class="font-medium">Messages</span>
+                </div>
+                {% if user.messages > 0 %}
+                <span
+                    class="bg-blue-500 text-white text-xs py-0.5 px-2 rounded-full font-bold border border-blue-400">{{
+                    user.messages }}</span>
+                {% endif %}
+            </a>
+
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Finance</p>
+            <a href="/topup"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                    </path>
+                </svg>
+                <span class="font-medium">Wallet & Topup</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-gray-800 mt-auto">
+    <a href="/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        <span class="font-medium">Sign Out</span>
+    </a>
+</div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+
+        <header
+            class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 z-30 flex-shrink-0">
+            <div class="flex items-center gap-4">
+                <button id="mobileSidebarBtn" class="md:hidden text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <h1 class="text-xl font-bold text-gray-800 hidden md:block">Inbox</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button
+                    class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 shadow-sm">
+                    + New Support Ticket
+                </button>
+                <div class="h-9 w-9 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://ui-avatars.com/api/?name={{ user.name }}&background=0D8ABC&color=fff"
+                        alt="Avatar">
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-hidden p-4 md:p-6 bg-gray-50">
+
+            <div
+                class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex overflow-hidden max-w-6xl mx-auto">
+
+                <div id="inboxList"
+                    class="w-full md:w-80 lg:w-96 border-r border-gray-200 flex flex-col h-full bg-white">
+
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="relative">
+                            <input type="text" placeholder="Search messages..."
+                                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto scrollbar-thin">
+                        <div onclick="openChat('chat1')"
+                            class="p-4 border-b border-gray-50 cursor-pointer bg-blue-50 hover:bg-gray-50 transition chat-item">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-gray-800 text-sm">Order #178923</h4>
+                                <span class="text-xs text-blue-600 font-semibold">10:42 AM</span>
+                            </div>
+                            <p class="text-sm text-gray-600 truncate font-medium">Writer: I have uploaded the draft...
+                            </p>
+                        </div>
+
+                        <div onclick="openChat('chat2')"
+                            class="p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition chat-item">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-gray-800 text-sm">Billing Support</h4>
+                                <span class="text-xs text-gray-400">Yesterday</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate">You: My payment didn't go through...</p>
+                        </div>
+
+                        <div onclick="openChat('chat3')"
+                            class="p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition chat-item">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-gray-800 text-sm">Order #178000</h4>
+                                <span class="text-xs text-gray-400">Dec 12</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate">Writer: The instructions were clear, thanks.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chatView" class="hidden md:flex flex-1 flex-col h-full bg-gray-50/50 relative">
+
+                    <div id="emptyState"
+                        class="hidden md:flex flex-col items-center justify-center h-full text-center p-6">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-3xl">
+                            💬</div>
+                        <h3 class="text-lg font-bold text-gray-700">Select a conversation</h3>
+                        <p class="text-gray-500 text-sm">Choose a thread from the left to start chatting.</p>
+                    </div>
+
+                    <div id="activeChat" class="flex flex-col h-full w-full">
+
+                        <div
+                            class="p-4 bg-white border-b border-gray-200 flex items-center justify-between shadow-sm z-10">
+                            <div class="flex items-center gap-3">
+                                <button onclick="backToList()" class="md:hidden text-gray-500 hover:text-gray-700 mr-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                </button>
+                                <div
+                                    class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
+                                    W
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-sm" id="chatTitle">Order #178923 Support
+                                    </h3>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                                        <span class="text-xs text-gray-500">Online</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin bg-gray-50" id="messagesArea">
+
+                            <div class="flex justify-center my-4">
+                                <span class="bg-gray-200 text-gray-500 text-xs px-3 py-1 rounded-full">Today</span>
+                            </div>
+
+                            <div class="flex gap-3 max-w-[85%]">
+                                <div
+                                    class="h-8 w-8 rounded-full bg-indigo-100 flex-shrink-0 flex items-center justify-center text-xs font-bold text-indigo-700 mt-1">
+                                    W</div>
+                                <div>
+                                    <div
+                                        class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-none text-sm text-gray-700 shadow-sm">
+                                        Hello! I've uploaded the first draft. Please check the files section.
+                                    </div>
+                                    <span class="text-[10px] text-gray-400 ml-1 mt-1">10:42 AM</span>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3 flex-row-reverse max-w-[85%] ml-auto">
+                                <div>
+                                    <div
+                                        class="bg-blue-600 p-3 rounded-2xl rounded-tr-none text-sm text-white shadow-md">
+                                        Great, checking it now. Thanks for the quick update!
+                                    </div>
+                                    <div class="flex items-center justify-end gap-1 mt-1">
+                                        <span class="text-[10px] text-gray-400">10:45 AM</span>
+                                        <svg class="w-3 h-3 text-blue-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="p-4 bg-white border-t border-gray-200 z-10">
+                            <form class="flex gap-2 items-end">
+                                <button type="button"
+                                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <div
+                                    class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition">
+                                    <textarea rows="1" placeholder="Type a message..."
+                                        class="w-full bg-transparent border-none focus:ring-0 text-sm resize-none py-1"></textarea>
+                                </div>
+                                <button type="submit"
+                                    class="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-md transition">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Sidebar Toggle
+        const mobileBtn = document.getElementById('mobileSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        function toggleSidebar() { sidebar.classList.toggle('-translate-x-full'); }
+        mobileBtn.addEventListener('click', toggleSidebar);
+        closeBtn.addEventListener('click', toggleSidebar);
+
+        // Mobile Inbox Logic
+        const inboxList = document.getElementById('inboxList');
+        const chatView = document.getElementById('chatView');
+        const activeChat = document.getElementById('activeChat');
+        const emptyState = document.getElementById('emptyState');
+        const chatItems = document.querySelectorAll('.chat-item');
+
+        function openChat(id) {
+            // In a real app, you'd fetch messages for 'id' here
+
+            // Visual Active State for list items
+            chatItems.forEach(item => {
+                item.classList.remove('bg-blue-50');
+            });
+            event.currentTarget.classList.add('bg-blue-50');
+
+            // Show Chat View
+            if (window.innerWidth < 768) {
+                // Mobile: Hide list, show chat
+                inboxList.classList.add('hidden');
+                chatView.classList.remove('hidden');
+            } else {
+                // Desktop: Just ensure empty state is gone
+                emptyState.classList.add('hidden'); // Hide the "Select conversation" placeholder
+                activeChat.classList.remove('hidden'); // Ensure chat is visible
+                chatView.classList.remove('hidden'); // Ensure right panel is visible
+            }
+        }
+
+        function backToList() {
+            // Only relevant on mobile
+            inboxList.classList.remove('hidden');
+            chatView.classList.add('hidden');
+        }
+
+        // Initialize: On desktop, show empty state by default (or active chat)
+        // This makes sure the layout loads correctly
+        if (window.innerWidth >= 768) {
+            chatView.classList.remove('hidden'); // Show right panel
+            activeChat.classList.remove('hidden'); // For demo, show active chat immediately
+            emptyState.classList.add('hidden');
+        }
+    </script>
+</body>
+
+</html>

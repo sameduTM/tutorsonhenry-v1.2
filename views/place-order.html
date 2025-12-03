@@ -4,290 +4,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ images.logo }}">
     <title>Place Order — Tutorsonhenry</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        slate: { 850: '#1e293b', 900: '#0f172a' }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-50 font-sans text-gray-900 h-screen flex overflow-hidden">
 
-    <!-- Top Header -->
-    <header class="w-full bg-white shadow-sm py-4 px-6 flex items-center justify-between sticky top-0 z-50">
+    <aside id="sidebar"
+        class="fixed md:relative z-40 w-72 bg-slate-900 text-gray-400 h-full flex flex-col shadow-2xl transition-transform duration-300 transform -translate-x-full md:translate-x-0">
 
-        <!-- Logo -->
-        <div class="flex items-center space-x-3">
-            <a href="/">
-                <img src="{{ images.logo }}" alt="Logo" class="h-10 w-auto">
+        <div class="h-16 flex items-center px-6 border-b border-gray-800 bg-slate-900">
+            <a href="/" class="flex items-center gap-3">
+                <img src="{{ images.logo }}" alt="Logo" class="h-8 w-auto brightness-0 invert">
+                <span class="text-white font-bold text-lg tracking-wide">Tutorsonhenry</span>
             </a>
-            <a href="/">
-                <span class="text-xl font-bold text-gray-800">Tutorsonhenry</span>
-            </a>
+            <button id="closeSidebarBtn" class="md:hidden ml-auto text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
         </div>
 
-        <!-- Center Links (Desktop) -->
-        <nav class="hidden md:flex space-x-6 text-gray-700 font-medium" id="desktopNav">
-            <a href="/messages" class="hover:text-indigo-600 transition">Messages</a>
-            <a href="/place-order" class="hover:text-indigo-600 transition font-semibold text-indigo-600">Place
-                Order</a>
-            <a href="/orders" class="hover:text-indigo-600 transition">My Orders</a>
+        <div class="p-6 border-b border-gray-800">
+            <div class="flex items-center gap-3">
+                <div
+                    class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                    {{ user.name | first | upper }}
+                </div>
+                <div>
+                    <h4 class="text-white text-sm font-semibold truncate w-32">{{ user.name }}</h4>
+                    <p class="text-xs text-gray-500">Student Account</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Main</p>
+
+            <a href="/profile"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                    </path>
+                </svg>
+                <span class="font-medium">Overview</span>
+            </a>
+
+            <a href="/place-order"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-900/20 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span class="font-medium">Place New Order</span>
+            </a>
+
+            <a href="/orders"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                    </path>
+                </svg>
+                <span class="font-medium">My Orders</span>
+            </a>
+
+            <a href="/messages"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all justify-between">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                        </path>
+                    </svg>
+                    <span class="font-medium">Messages</span>
+                </div>
+                {% if user.messages > 0 %}
+                <span class="bg-blue-600 text-white text-xs py-0.5 px-2 rounded-full font-bold">{{ user.messages
+                    }}</span>
+                {% endif %}
+            </a>
+
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Finance</p>
+
+            <a href="/topup"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                    </path>
+                </svg>
+                <span class="font-medium">Wallet & Topup</span>
+            </a>
         </nav>
 
-        <!-- Mobile Controls -->
-        <div class="md:hidden flex items-center gap-3">
-            <!-- Sidebar toggle -->
-            <button id="sidebarBtn" class="text-gray-700 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
-                    </path>
-                </svg>
-            </button>
-
-            <!-- Hamburger menu for center links -->
-            <button id="hamburgerBtn" class="text-gray-700 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
-                    </path>
-                </svg>
-            </button>
-        </div>
-
-        <!-- Right Side -->
-        <div class="flex items-center space-x-4">
-            <div class="hidden sm:block bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg font-semibold animate-pulse">
-                👋 Hi, {{ user.name }}
-            </div>
+        <div class="p-4 border-t border-gray-800">
             <a href="/logout"
-                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition">
-                Logout
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg>
+                <span class="font-medium">Sign Out</span>
             </a>
         </div>
-    </header>
+    </aside>
 
-    <!-- Mobile Menu -->
-    <nav id="mobileNav"
-        class="hidden absolute top-16 left-0 w-full bg-white shadow-md flex flex-col space-y-2 p-4 md:hidden z-40">
-        <a href="/messages" class="py-2 px-4 hover:bg-gray-100 rounded">Messages</a>
-        <a href="/place-order" class="py-2 px-4 hover:bg-gray-100 rounded font-semibold text-indigo-600">Place Order</a>
-        <a href="/orders" class="py-2 px-4 hover:bg-gray-100 rounded">My Orders</a>
-    </nav>
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
 
-    <div class="flex h-screen pt-2">
-
-        <!-- Sidebar -->
-        <aside id="sidebar"
-            class="w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white min-h-screen p-6 shadow-lg sticky top-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50">
-
-            <div class="mt-6 mb-8">
-                <h2 class="text-2xl font-bold mb-1">Welcome, {{ user.name }}!</h2>
-                <p class="text-sm text-gray-200">Ready to place a new order?</p>
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 z-30">
+            <div class="flex items-center gap-4">
+                <button id="mobileSidebarBtn" class="md:hidden text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <h1 class="text-xl font-bold text-gray-800 hidden md:block">Place New Order</h1>
             </div>
 
-            <nav class="flex flex-col gap-3">
-                <a href="/" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
-                    <span>🏠</span>
-                    <span>Back to Homepage</span>
-                </a>
-                <a href="/topup" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
-                    <span>💰</span>
-                    <span>Top Up Wallet ($0)</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
-                    <span>📞</span>
-                    <span>VIP WhatsApp Support</span>
-                </a>
-                <a href="/messages" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
-                    <span>✉️</span>
-                    <span>Messages (0)</span>
-                </a>
-                <a href="/profile" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
-                    <span>👤</span>
-                    <span>My Profile</span>
-                </a>
-                <a href="/logout" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-red-600 transition">
-                    <span>🚪</span>
-                    <span>Logout</span>
-                </a>
-                <a href="/place-order" class="flex items-center gap-3 px-4 py-2 rounded-lg bg-blue-500 shadow-lg">
-                    <span>📝</span>
-                    <span>Place Order</span>
-                </a>
-                <a href="/orders" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
-                    <span>📦</span>
-                    <span>My Orders (1)</span>
-                </a>
-                <a href="/referrals" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-500 transition">
-                    <span>💸</span>
-                    <span>Earn from Referrals</span>
-                </a>
-            </nav>
-        </aside>
+            <div class="flex items-center gap-4 md:gap-6">
+                <button class="relative p-2 text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                        </path>
+                    </svg>
+                    <span
+                        class="absolute top-2 right-2 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-8">
+                <div class="h-9 w-9 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://ui-avatars.com/api/?name={{ user.name }}&background=0D8ABC&color=fff"
+                        alt="Avatar">
+                </div>
+            </div>
+        </header>
 
-            <!-- Page Intro -->
-            <div class="mb-8 bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl shadow-md">
-                <h1 class="text-4xl font-extrabold text-gray-800 mb-3">
-                    Place a New Order
-                </h1>
-                <p class="text-gray-600 text-lg">
-                    Fill in the details below, and a <span class="font-semibold text-indigo-600">professional
-                        writer</span> will start working on your assignment promptly.
-                </p>
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+
+            <div class="max-w-5xl mx-auto">
+                <div class="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Order Details</h1>
+                    <p class="text-gray-600">Fill in the details below to get matched with a subject matter expert.</p>
+                </div>
+
+                <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-6 md:p-8">
+                    <form action="/place-order" method="POST" enctype="multipart/form-data"
+                        class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div class="col-span-full">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Title of Assignment</label>
+                            <input type="text" name="title" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Type of Paper</label>
+                            <select name="type" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
+                                <option value="">Select Type</option>
+                                <option>Essay</option>
+                                <option>Research Paper</option>
+                                <option>Case Study</option>
+                                <option>Assignment</option>
+                                <option>Discussion Post</option>
+                                <option>Report</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Subject</label>
+                            <select name="subject" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
+                                <option value="">Select Subject</option>
+                                <option>English</option>
+                                <option>Nursing</option>
+                                <option>History</option>
+                                <option>Business</option>
+                                <option>Law</option>
+                                <option>Psychology</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Academic Level</label>
+                            <select name="level" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
+                                <option value="">Select Level</option>
+                                <option>High School</option>
+                                <option>College</option>
+                                <option>Undergraduate</option>
+                                <option>Masters</option>
+                                <option>PhD</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Writer Category</label>
+                            <select name="writerCategory" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
+                                <option>Standard</option>
+                                <option>Advanced</option>
+                                <option>Expert</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Deadline</label>
+                            <input type="datetime-local" name="deadline" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Pages</label>
+                            <input type="number" name="pages" min="1" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Spacing</label>
+                            <select name="spacing" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
+                                <option>Double Spaced</option>
+                                <option>Single Spaced</option>
+                            </select>
+                        </div>
+
+                        <div class="col-span-full">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Files</label>
+
+                            <div class="flex items-center justify-center w-full">
+                                <label id="dropzone"
+                                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-all group relative overflow-hidden">
+
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
+                                        <svg class="w-8 h-8 mb-3 text-gray-400 group-hover:text-blue-500 transition-colors"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                            </path>
+                                        </svg>
+                                        <p class="text-sm text-gray-500 group-hover:text-blue-600"><span
+                                                class="font-semibold">Click to upload</span> or drag and drop</p>
+                                        <p class="text-xs text-gray-400 mt-1">PDF, DOCX, JPG, PNG (Max 10MB)</p>
+                                    </div>
+
+                                    <input type="file" name="files" id="fileInput" multiple class="hidden" />
+                                </label>
+                            </div>
+
+                            <div id="filePreview" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 empty:hidden">
+                            </div>
+                        </div>
+
+                        <div class="col-span-full">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Detailed Instructions</label>
+                            <textarea name="instructions" rows="6" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all"
+                                placeholder="Please describe the requirements for your paper..."></textarea>
+                        </div>
+
+                        <div
+                            class="col-span-full bg-slate-900 text-white rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-200">Total Estimated Price</h3>
+                                <p class="text-xs text-gray-400">Final price depends on writer level & deadline.</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-4xl font-bold text-white" id="priceDisplay">$0</p>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="price" id="priceInput" value="0">
+
+                        <div class="col-span-full mt-2">
+                            <button type="submit"
+                                class="w-full p-4 bg-blue-600 text-white rounded-xl text-lg font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:-translate-y-0.5 transition-all">
+                                Proceed to Payment
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
             </div>
 
-            <div class="bg-white shadow-lg rounded-xl p-8">
-
-                <form action="/place-order" method="POST" enctype="multipart/form-data"
-                    class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <!-- Title -->
-                    <div class="col-span-full">
-                        <label class="block font-semibold mb-1">Title of Assignment</label>
-                        <input type="text" name="title" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
-                    </div>
-
-                    <!-- Type -->
-                    <div>
-                        <label class="block font-semibold mb-1">Type of Paper</label>
-                        <select name="type" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
-                            <option value="">Select Type</option>
-                            <option>Essay</option>
-                            <option>Research Paper</option>
-                            <option>Case Study</option>
-                            <option>Assignment</option>
-                            <option>Discussion Post</option>
-                            <option>Report</option>
-                        </select>
-                    </div>
-
-                    <!-- Subject -->
-                    <div>
-                        <label class="block font-semibold mb-1">Subject</label>
-                        <select name="subject" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
-                            <option value="">Select Subject</option>
-                            <option>English</option>
-                            <option>Nursing</option>
-                            <option>History</option>
-                            <option>Business</option>
-                            <option>Law</option>
-                            <option>Psychology</option>
-                        </select>
-                    </div>
-
-                    <!-- Academic Level -->
-                    <div>
-                        <label class="block font-semibold mb-1">Academic Level</label>
-                        <select name="level" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
-                            <option value="">Select Level</option>
-                            <option>High School</option>
-                            <option>College</option>
-                            <option>Undergraduate</option>
-                            <option>Masters</option>
-                            <option>PhD</option>
-                        </select>
-                    </div>
-
-                    <!-- Writer Category -->
-                    <div>
-                        <label class="block font-semibold mb-1">Writer Category</label>
-                        <select name="writerCategory" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
-                            <option>Standard</option>
-                            <option>Advanced</option>
-                            <option>Expert</option>
-                        </select>
-                    </div>
-
-                    <!-- Deadline -->
-                    <div>
-                        <label class="block font-semibold mb-1">Deadline</label>
-                        <input type="datetime-local" name="deadline" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
-                    </div>
-
-                    <!-- Pages -->
-                    <div>
-                        <label class="block font-semibold mb-1">Pages</label>
-                        <input type="number" name="pages" min="1" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
-                    </div>
-
-                    <!-- Spacing -->
-                    <div>
-                        <label class="block font-semibold mb-1">Spacing</label>
-                        <select name="spacing" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600">
-                            <option>Double Spaced</option>
-                            <option>Single Spaced</option>
-                        </select>
-                    </div>
-
-                    <!-- File upload -->
-                    <div class="col-span-full">
-                        <label class="block font-semibold mb-1">Upload Files</label>
-                        <input type="file" name="files" multiple
-                            class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-600">
-                    </div>
-
-                    <!-- Instructions -->
-                    <div class="col-span-full">
-                        <label class="block font-semibold mb-1">Assignment Instructions</label>
-                        <textarea name="instructions" rows="5" required
-                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-600"></textarea>
-                    </div>
-
-                    <!-- PRICE (Auto-updated) -->
-                    <div class="col-span-full bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                        <h3 class="text-lg font-semibold mb-2 text-blue-800">Estimated Price</h3>
-                        <p class="text-3xl font-bold text-blue-700" id="priceDisplay">$0</p>
-                        <p class="text-gray-500 text-sm">Price updates automatically based on page count.</p>
-                    </div>
-
-                    <!-- Hidden price input (REQUIRED) -->
-                    <input type="hidden" name="price" id="priceInput" value="0">
-
-
-                    <!-- Submit -->
-                    <div class="col-span-full mt-6">
-                        <button type="submit"
-                            class="w-full p-4 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700">
-                            Submit Order
-                        </button>
-                    </div>
-
-                </form>
-
-            </div>
         </main>
     </div>
 
-    <!-- Scripts -->
     <script>
-        // Hamburger toggle
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        const mobileNav = document.getElementById('mobileNav');
-        hamburgerBtn.addEventListener('click', () => {
-            mobileNav.classList.toggle('hidden');
-        });
-
-        // Sidebar toggle (mobile)
-        const sidebarBtn = document.getElementById('sidebarBtn');
+        const mobileSidebarBtn = document.getElementById('mobileSidebarBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
         const sidebar = document.getElementById('sidebar');
-        sidebarBtn.addEventListener('click', () => {
+
+        function toggleSidebar() {
             sidebar.classList.toggle('-translate-x-full');
+        }
+
+        mobileSidebarBtn.addEventListener('click', toggleSidebar);
+        closeSidebarBtn.addEventListener('click', toggleSidebar);
+
+        window.addEventListener('click', (e) => {
+            if (window.innerWidth < 768) {
+                if (!sidebar.contains(e.target) && !mobileSidebarBtn.contains(e.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
         });
 
         // Price Calculator
         const pagesInput = document.querySelector('input[name="pages"]');
         const priceInput = document.getElementById('priceInput');
         const priceDisplay = document.getElementById('priceDisplay');
-
         const pricePerPage = 10;
 
         function updatePrice() {
@@ -297,10 +342,93 @@
             priceInput.value = price;
         }
 
-        pagesInput.addEventListener('input', updatePrice);
-
+        if (pagesInput) {
+            pagesInput.addEventListener('input', updatePrice);
+        }
         document.addEventListener("DOMContentLoaded", updatePrice);
 
+        // --- FILE PREVIEW LOGIC ---
+        const fileInput = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
+        const dropzone = document.getElementById('dropzone');
+
+        // Handle File Selection
+        fileInput.addEventListener('change', handleFiles);
+
+        function handleFiles(e) {
+            const files = Array.from(e.target.files);
+
+            // Clear previous previews
+            filePreview.innerHTML = '';
+
+            if (files.length === 0) return;
+
+            files.forEach(file => {
+                const isImage = file.type.startsWith('image/');
+                const reader = new FileReader();
+
+                reader.onload = (event) => {
+                    // Create Card Container
+                    const card = document.createElement('div');
+                    card.className = "flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm relative overflow-hidden";
+
+                    // Content HTML
+                    let thumbnailHtml = '';
+
+                    if (isImage) {
+                        // Show actual image
+                        thumbnailHtml = `<img src="${event.target.result}" class="w-10 h-10 rounded-md object-cover border border-gray-100">`;
+                    } else {
+                        // Show Document Icon
+                        thumbnailHtml = `
+                        <div class="w-10 h-10 rounded-md bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </div>`;
+                    }
+
+                    // File Size Formatter
+                    const size = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+
+                    card.innerHTML = `
+                    ${thumbnailHtml}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-700 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-400">${size}</p>
+                    </div>
+                    <div class="text-green-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                `;
+
+                    filePreview.appendChild(card);
+                };
+
+                // Read the file
+                if (isImage) {
+                    reader.readAsDataURL(file); // Read actual image data
+                } else {
+                    reader.onload({ target: { result: null } }); // Just trigger onload for non-images
+                }
+            });
+        }
+
+        // Drag and Drop Visual Feedback
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-blue-500', 'bg-blue-50');
+        });
+
+        dropzone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-blue-500', 'bg-blue-50');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-blue-500', 'bg-blue-50');
+            fileInput.files = e.dataTransfer.files; // Assign dropped files to input
+            handleFiles({ target: { files: e.dataTransfer.files } }); // Trigger preview
+        });
     </script>
 
 </body>

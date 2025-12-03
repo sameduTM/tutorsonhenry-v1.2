@@ -1,78 +1,42 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
 
-const OrderSchema = new mongoose.Schema({
-    user: {
+const orderSchema = new mongoose.Schema({
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: User,
-        required: true,
-    },
-    title: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    type: {
-        type: String,
-        required: true,
-    },
-    subject: {
-        type: String,
-        required: true,
-    },
-    pages: {
-        type: Number,
-        default: function () {
-            return this.pages * 275;
-        }
-    },
-    files: {
-        type: [String], // file paths or cloud URLs
-        default: []
-    },
-    deadline: {
-        type: Date,
-        required: true,
-    },
-    writerId: {
-        type: String,
-        default: "Unassigned",
-    },
-    writerCategory: {
-        type: String,
-        enum: ["Standard", "Advanced", "Expert"],
-        default: "Standard",
-    },
-    price: {
-        type: Number,
-        required: true,
-    },
-    status: {
-        type: String,
-        enum: [
-            "pending",
-            "in progess",
-            "completed",
-            "revision",
-            "cancelled"
-        ],
-        default: "pending"
-    },
-    instructions: {
-        type: String,
-        required: true,
-    },
-
-    spacing: {
-        type: String,
-        enum: ["Single Spaced", "Double Spaced"],
+        ref: User, // Links to your User model
         required: true
     },
+    title: { type: String, required: true },
+    type: { type: String, required: true },
+    subject: { type: String, required: true },
+    level: { type: String, required: true },
+    writerCategory: { type: String, default: 'Standard' },
 
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
+    deadline: { type: Date, required: true },
+    pages: { type: Number, required: true },
+    spacing: { type: String, default: 'Double Spaced' },
 
-module.exports = mongoose.model('Order', OrderSchema);
+    instructions: { type: String },
+
+    price: { type: Number, required: true },
+
+    status: {
+        type: String,
+        enum: ['Pending', 'Bidding', 'In Progress', 'Completed', 'Cancelled'],
+        default: 'Pending'
+    },
+
+    // 📂 THIS IS WHERE WE STORE THE FILES
+    files: [{
+        originalName: String,
+        filename: String,
+        path: String,
+        size: Number,
+        mimetype: String,
+        uploadedAt: { type: Date, default: Date.now }
+    }]
+
+}, { timestamps: true }); // Adds createdAt and updatedAt automatically
+
+module.exports = mongoose.model('Order', orderSchema);

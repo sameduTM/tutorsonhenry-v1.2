@@ -25,19 +25,28 @@ class UserService {
     };
 
     static async getUser(email, password) {
-        const user = await User.findOne({ email });
+        try {
+            // find user by email
+            const user = await User.findOne({ email });
 
-        if (!user) {
-            throw new Error("Invalid email or password");
+            // if no user found, return null
+            if (!user) {
+                return null;
+            }
+
+            // check password
+            const isMatch = await bcrypt.compare(password, user.password);
+
+            // if password is wrong, return null
+            if (!isMatch) {
+                return null;
+            }
+
+            // return user if everything matches
+            return user;
+        } catch (err) {
+            throw err;
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            throw new Error("Invalid email or password");
-        }
-
-        return user;
     }
 
     static async getAllServices() {

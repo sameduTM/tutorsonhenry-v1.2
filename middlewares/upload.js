@@ -11,10 +11,15 @@ if (!fs.existsSync(uploadsDir)) {
 // storage engine
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const userFolder = path.join(uploadsDir, req.session.user._id.toString());
+        // Safety check: If no user session, send error
+        if (!req.session || !req.session.user) {
+            return cb(new Error('You must be logged in to upload files'));
+        }
+
+        const userFolder = path.join(uploadsDir, req.session.user.id.toString()); // Changed _id to id to match session
 
         if (!fs.existsSync(userFolder)) {
-            fs.mkdirSync(userFolder);
+            fs.mkdirSync(userFolder, { recursive: true }); // recursive: true is safer
         }
 
         cb(null, userFolder);

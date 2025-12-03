@@ -16,13 +16,29 @@ authRouter.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // attempt to find a user
         const user = await UserService.getUser(email, password);
 
-        // store user info in session
-        req.session.user = user;
-        res.redirect('/profile');
+        // if the service returns null/false, we land here.
+        if (!user) {
+            req.flash("error", "Invalid email or password");
+            return res.redirect('/login');
+        }
+
+        // Clean up data before session storage
+        req.session.user = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        };
+
+        req.session.save(() => {
+            res.redirect('/profile');
+        });
     } catch (err) {
-        res.status(401).send("Invalid email or password");
+        console.error(err);
+        req.flash("error", "Something went wrong. Please try again.");
+        return res.redirect('/login');
     }
 });
 

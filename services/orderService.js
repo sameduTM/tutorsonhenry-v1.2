@@ -2,27 +2,40 @@ const Order = require('../models/orders');
 const upload = require('../middlewares/upload');
 
 class OrderService {
-    static async createOrder(user, order, filePaths) {
+    static async createOrder(user, order, fileData) {
         try {
             const newOrder = await Order.create({
-                user: user._id,
+                userId: user.id,
+
                 title: order.title,
                 subject: order.subject,
                 type: order.type,
                 level: order.level,
                 spacing: order.spacing,
-                deadline: order.deadline,
-                pages: order.pages,
                 writerCategory: order.writerCategory,
                 instructions: order.instructions,
-                files: filePaths,
-                price: order.price
+
+                deadline: new Date(order.deadline),
+                pages: parseInt(order.pages) || 0,
+                price: parseInt(order.price) || 0,
+
+                files: fileData,
             });
 
             return newOrder;
         } catch (err) {
             console.error("Order creation failed:", err);
             throw new Error("Could not create order");
+        }
+    }
+
+    static async getOrderById(orderId) {
+        try {
+            const order = await Order.findById(orderId);
+            return order;
+        } catch (err) {
+            console.error("OrderService Error:", err);
+            return null;
         }
     }
     static async getOrdersByUserId(user, { status = 'all', page = 1, limit = 10 } = {}) {

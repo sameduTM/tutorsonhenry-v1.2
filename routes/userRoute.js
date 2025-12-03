@@ -1,5 +1,6 @@
 const express = require('express');
 const UserService = require('../services/userService');
+const OrderService = require('../services/orderService');
 
 const userRouter = express.Router();
 
@@ -15,20 +16,51 @@ userRouter.get('/', async (req, res) => {
         images: {
             logo: '/images/medical-team.png',
             hero: '/images/hero-bg.jpg',
+            favicon: '/images/favicon.png',
         }, proctoredExams, onlineExams, atiModules, onlineClasses,
     });
 });
 
-userRouter.get('/profile', (req, res) => {
-    if (!req.session.user) {
+userRouter.get('/messages', (req, res) => {
+    const user = req.session.user;
+
+    if (!user) return res.redirect('/login');
+    res.render('messages.html', {
+        images: {
+            logo: '/images/medical-team.png',
+        },
+        user,
+    });
+});
+
+userRouter.get('/topup', (req, res) => {
+    const user = req.session.user;
+
+    if (!user) return res.redirect('/login');
+
+    res.render('topup.html', {
+        images: {
+            logo: '/images/medical-team.png',
+        },
+        user,
+    })
+});
+
+userRouter.get('/profile', async (req, res) => {
+    const user = req.session.user;
+    if (!user) {
         return res.redirect('/login');
     }
+
+    // get orders from user
+    const orders = await OrderService.getOrdersByUserId(user.id);
 
     res.render('profile.html', {
         user: req.session.user,
         images: {
             logo: '/images/medical-team.png',
         },
+        orders,
     });
 });
 

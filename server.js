@@ -1,11 +1,13 @@
 const MongoStore = require('connect-mongo');
 const express = require('express');
 const session = require('express-session');
+const flash = require('express-flash');
 const path = require('path');
 const nunjucks = require('nunjucks');
 const userRouter = require('./routes/userRoute');
 const authRouter = require('./routes/authRoute');
 const orderRouter = require('./routes/orderRoute');
+const paymentRouter = require('./routes/paymentRoute');
 
 // establish conection with DB before starting server
 require('./config/db');
@@ -33,6 +35,7 @@ app.engine('html', nunjucks.render);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(flash());
 
 // session store
 app.use(session({
@@ -42,11 +45,12 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// routes
+// register routes
 app.use(userRouter);
 app.use(authRouter);
 app.use(orderRouter);
+app.use(paymentRouter);
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at port:${PORT}`);
 });
