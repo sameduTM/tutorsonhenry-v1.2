@@ -39,14 +39,13 @@ class OrderService {
         }
     }
     static async getOrdersByUserId(user, { status = 'all', page = 1, limit = 10 } = {}) {
-        const query = { user: user._id };
+        const query = { userId: user.id };
 
         if (status !== 'all') {
             query.status = status;
         }
 
         const skip = (page - 1) * limit;
-
         const totalOrders = await Order.countDocuments(query);
 
         const orders = await Order.find(query)

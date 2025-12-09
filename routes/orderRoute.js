@@ -2,66 +2,58 @@ const express = require('express');
 const upload = require('../middlewares/upload');
 const Order = require('../models/orders');
 const OrderService = require('../services/orderService');
+const { requireStudent } = require('../middlewares/roleAuth'); // Import middleware
 
 const orderRouter = express.Router();
 
-// Wrapper to catch "File Too Large" or "Invalid Type" errors gracefully
-const uploadMiddleware = (req, res, next) => {
-    // must match HTML input name="files"
-    const uploadProcess = upload.array("files", 10);
+const IMAGE_PATHS = {
+    logo: '/images/medical-team.png', // Fixed double slash typo
+};
 
+// Wrapper to catch "File Too Large" errors gracefully
+const uploadMiddleware = (req, res, next) => {
+    const uploadProcess = upload.array("files", 10);
     uploadProcess(req, res, (err) => {
         if (err) {
-            // catches multer errors (e.g. file too large)
             console.error("Upload Error:", err);
             req.flash("error", err.message);
             return res.redirect('/place-order');
         }
         next();
     });
-}
+};
 
-const requireLogin = (req, res, next) => {
-    if (!req.session || !req.session.user) {
-        // user is not logged in
-        req.flash('error', 'Please login to place an order.');
-        return res.redirect('/login');
-    }
-    // User s logged in -> proceed
-    next();
-}
+// =========================================================
+// 1. STUDENT ONLY ROUTES (Protected by requireStudent)
+// =========================================================
 
-orderRouter.get('/place-order', requireLogin, (req, res) => {
+// GET Page: Place Order
+orderRouter.get('/place-order', requireStudent, (req, res) => {
     res.render('place-order.html', {
-        images: {
-            logo: '/images//medical-team.png',
-        },
+        images: IMAGE_PATHS,
         user: req.session.user,
     });
 });
 
-// place order
-orderRouter.post('/place-order', requireLogin, uploadMiddleware, async (req, res) => {
+// POST: Submit Order
+orderRouter.post('/place-order', requireStudent, uploadMiddleware, async (req, res) => {
     try {
         const user = req.session.user;
 
-        // prepare file data for MongoDB Schema
+        // Prepare file data
         let fileData = [];
         if (req.files && req.files.length > 0) {
             fileData = req.files.map(file => ({
-                originalName: file.originalName,
+                originalName: file.originalname, // Fixed: originalname (lowercase 'n' in multer)
                 filename: file.filename,
-                path: "/uploads/" + user._id + "/" + file.filename,
+                path: "/uploads/" + user.id + "/" + file.filename,
                 size: file.size,
                 mimetype: file.mimetype,
             }));
         }
 
-        // create the order
         const newOrder = await OrderService.createOrder(user, req.body, fileData);
 
-        // success redirect
-        // Redirect to the SPECIFIC order page so they can see what they bought
         req.flash("success", "Order placed successfully!");
         return res.redirect(`/orders/${newOrder._id}`);
 
@@ -72,23 +64,15 @@ orderRouter.post('/place-order', requireLogin, uploadMiddleware, async (req, res
     }
 });
 
-// Get /orders
-orderRouter.get('/orders', requireLogin, async (req, res) => {
+// GET: List My Orders
+orderRouter.get('/orders', requireStudent, async (req, res) => {
     try {
         const user = req.session.user;
-        if (!user) return res.redirect('/login');
-
         const status = req.query.status || 'all';
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
 
-
-        const {
-            orders,
-            currentPage,
-            totalPages,
-            statusFilter
-        } = await OrderService.getOrdersByUserId(user, {
+        const { orders, currentPage, totalPages, statusFilter } = await OrderService.getOrdersByUserId(user, {
             status,
             page,
             limit
@@ -101,9 +85,7 @@ orderRouter.get('/orders', requireLogin, async (req, res) => {
             totalPages,
             statusFilter,
             success: !!req.query.success,
-            images: {
-                logo: '/images/medical-team.png',
-            }
+            images: IMAGE_PATHS
         });
     } catch (err) {
         console.error(err);
@@ -111,36 +93,56 @@ orderRouter.get('/orders', requireLogin, async (req, res) => {
     }
 });
 
-// GET Single Order Details
-orderRouter.get('/orders/:id', requireLogin, async (req, res) => {
+// =========================================================
+// 2. SHARED ACCESS ROUTE (No requireStudent here)
+// =========================================================
+
+// GET: Single Order Details
+// Accessible by: Owner (Student), Assigned Writer, or Admin
+orderRouter.get('/orders/:id', async (req, res) => {
     try {
+        // 1. Basic Login Check
+        if (!req.session.user) {
+            req.flash('error', 'Please login first.');
+            return res.redirect('/login');
+        }
+
         const orderId = req.params.id;
         const user = req.session.user;
 
-        // fetch the order
+        // 2. Fetch Order
         const order = await OrderService.getOrderById(orderId);
 
-        // check if order exists
         if (!order) {
             req.flash('error', 'Order not found.');
             return res.redirect('/profile');
         }
 
-        // Security check: Ensure order belongs to user
-        // convert both IDs to string to compare safely
-        if (order.userId.toString() !== user.id.toString()) {
+        // 3. ACCESS CONTROL LOGIC
+        const isOwner = order.userId.toString() === user.id.toString();
+        // Check if current user is the assigned writer (safe check for null)
+        const isAssignedWriter = order.writerId && (order.writerId.toString() === user.id.toString());
+        const isAdmin = user.role === 'admin';
+
+        // 4. Block Unauthorized Users
+        if (!isOwner && !isAssignedWriter && !isAdmin) {
             req.flash('error', 'You are not authorized to view this order');
+            // Redirect based on role
+            if (user.role === 'admin') return res.redirect('/admin/dashboard');
+            if (user.role === 'tutor') return res.redirect('/writer/dashboard');
             return res.redirect('/profile');
         }
 
-        // render the page
+        // 5. Render Template
+        // We pass flags so the template can show/hide buttons
         res.render('order-details.html', {
             order,
             user,
-            images: {
-                logo: '/images/medical-team.png',
-            }
+            isWriter: isAssignedWriter,
+            isAdmin: isAdmin,
+            images: IMAGE_PATHS,
         });
+
     } catch (err) {
         console.error("Error fetching order:", err);
         req.flash('error', 'Invalid Order ID.');

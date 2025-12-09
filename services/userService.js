@@ -6,22 +6,23 @@ const saltRounds = 10;
 
 class UserService {
     static async createUser(userData) {
-        const { name, email, phone, role, password, createdAt } = userData;
+        const { name, email, phone, role, password } = userData;
 
-        // hash password before storing in database
-        bcrypt.genSalt(saltRounds, (err, salt) => {
-            bcrypt.hash(password, salt, (err, passwordHash) => {
-                const addedUser = new User({
-                    name,
-                    email,
-                    phone,
-                    role,
-                    password: passwordHash,
-                    createdAt,
-                });
-                addedUser.save();
-            });
+        // 1. Generate salt and hash using await
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        // 2. Create user instance
+        const addedUser = new User({
+            name,
+            email,
+            phone,
+            role,
+            password: passwordHash,
         });
+
+        // 3. Await the save and return the result
+        return await addedUser.save();
     };
 
     static async getUser(email, password) {

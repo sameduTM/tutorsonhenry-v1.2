@@ -35,8 +35,13 @@ const orderSchema = new mongoose.Schema({
         size: Number,
         mimetype: String,
         uploadedAt: { type: Date, default: Date.now }
-    }]
-
+    }],
+    // The Writer assigned to this order
+    writerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: User,
+        default: null,
+    },
 }, { timestamps: true }); // Adds createdAt and updatedAt automatically
 
 module.exports = mongoose.model('Order', orderSchema);
