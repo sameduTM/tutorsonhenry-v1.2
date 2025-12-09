@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="{{ images.logo }}">
+    <link rel="icon" type="image/png" href="{{ images.favicon }}">
     <title>Tutorsonhenry — Premium Landing</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,7 @@
                     colors: {
                         primary: '#0056b3',
                         accent: '#22a748',
-                        surface: '#f8fafc', // slate-50 equivalent for custom use if needed
+                        surface: '#f8fafc',
                         muted: '#6c757d',
                     },
                     fontFamily: {
@@ -241,7 +241,7 @@
                     </div>
                     <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition border border-slate-100">
                         <div
-                            class="h-14 w-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                            class="h-14 w-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
                             ⏰</div>
                         <h3 class="font-bold text-lg mb-2 text-slate-800">Timely Delivery</h3>
                         <p class="text-slate-500 text-sm leading-relaxed">No missed deadlines – All assignments are
@@ -249,7 +249,7 @@
                     </div>
                     <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition border border-slate-100">
                         <div
-                            class="h-14 w-14 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                            class="h-14 w-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
                             ✨</div>
                         <h3 class="font-bold text-lg mb-2 text-slate-800">Original Writing</h3>
                         <p class="text-slate-500 text-sm leading-relaxed">We complete all papers from scratch with Plag
@@ -257,7 +257,7 @@
                     </div>
                     <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition border border-slate-100">
                         <div
-                            class="h-14 w-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                            class="h-14 w-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
                             💰</div>
                         <h3 class="font-bold text-lg mb-2 text-slate-800">Money Back</h3>
                         <p class="text-slate-500 text-sm leading-relaxed">If requirements aren't met, you may request a
@@ -281,9 +281,29 @@
                             🛡️</div>
                         <h3 class="font-bold text-xl text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">
                             Proctored Exams</h3>
-                        <p class="text-slate-500 leading-relaxed">Secure, expert support for all major proctoring
+                        <p class="text-slate-500 leading-relaxed mb-4">Secure, expert support for all major proctoring
                             platforms including Proctorio and Respondus.</p>
+
+                        <button
+                            class="text-primary font-bold text-sm inline-flex items-center focus:outline-none toggle-platform hover:underline"
+                            data-target="list-proctored">
+                            View All Platforms ▼
+                        </button>
+                        <ul id="list-proctored"
+                            class="mt-4 hidden text-sm text-slate-600 space-y-1 border-t border-slate-100 pt-3">
+                            {% for item in proctoredExams %}
+                            <li>
+                                <a href="/login"
+                                    class="block px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-primary transition-all flex items-center gap-2 group/item">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-blue-300 group-hover/item:bg-primary transition-colors"></span>
+                                    {{ item.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
+
                     <div
                         class="group hover-card bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 cursor-pointer text-left">
                         <div
@@ -291,9 +311,29 @@
                             💻</div>
                         <h3 class="font-bold text-xl text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">
                             Online Exams</h3>
-                        <p class="text-slate-500 leading-relaxed">Comprehensive exam preparation and support for HESI,
-                            TEAS, and other entrance exams.</p>
+                        <p class="text-slate-500 leading-relaxed mb-4">Comprehensive exam preparation and support for
+                            HESI, TEAS, and other entrance exams.</p>
+
+                        <button
+                            class="text-primary font-bold text-sm inline-flex items-center focus:outline-none toggle-platform hover:underline"
+                            data-target="list-online-exams">
+                            View All Exams ▼
+                        </button>
+                        <ul id="list-online-exams"
+                            class="mt-4 hidden text-sm text-slate-600 space-y-1 border-t border-slate-100 pt-3">
+                            {% for item in onlineExams %}
+                            <li>
+                                <a href="/login"
+                                    class="block px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-primary transition-all flex items-center gap-2 group/item">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-blue-300 group-hover/item:bg-primary transition-colors"></span>
+                                    {{ item.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
+
                     <div
                         class="group hover-card bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 cursor-pointer text-left">
                         <div
@@ -301,9 +341,29 @@
                             📚</div>
                         <h3 class="font-bold text-xl text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">
                             ATI / VATI Modules</h3>
-                        <p class="text-slate-500 leading-relaxed">Complete assistance with nursing education modules to
-                            ensure you stay on track.</p>
+                        <p class="text-slate-500 leading-relaxed mb-4">Complete assistance with nursing education
+                            modules to ensure you stay on track.</p>
+
+                        <button
+                            class="text-primary font-bold text-sm inline-flex items-center focus:outline-none toggle-platform hover:underline"
+                            data-target="list-ati">
+                            View All Modules ▼
+                        </button>
+                        <ul id="list-ati"
+                            class="mt-4 hidden text-sm text-slate-600 space-y-1 border-t border-slate-100 pt-3">
+                            {% for item in atiModules %}
+                            <li>
+                                <a href="/login"
+                                    class="block px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-primary transition-all flex items-center gap-2 group/item">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-blue-300 group-hover/item:bg-primary transition-colors"></span>
+                                    {{ item.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
+
                     <div
                         class="group hover-card bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 cursor-pointer text-left">
                         <div
@@ -311,9 +371,29 @@
                             🎓</div>
                         <h3 class="font-bold text-xl text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">
                             Online Classes</h3>
-                        <p class="text-slate-500 leading-relaxed">Full semester support for Canvas, Blackboard, and
+                        <p class="text-slate-500 leading-relaxed mb-4">Full semester support for Canvas, Blackboard, and
                             other learning management systems.</p>
+
+                        <button
+                            class="text-primary font-bold text-sm inline-flex items-center focus:outline-none toggle-platform hover:underline"
+                            data-target="list-classes">
+                            View Platforms ▼
+                        </button>
+                        <ul id="list-classes"
+                            class="mt-4 hidden text-sm text-slate-600 space-y-1 border-t border-slate-100 pt-3">
+                            {% for item in onlineClasses %}
+                            <li>
+                                <a href="/login"
+                                    class="block px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-primary transition-all flex items-center gap-2 group/item">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-blue-300 group-hover/item:bg-primary transition-colors"></span>
+                                    {{ item.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
+
                     <div
                         class="group hover-card bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 cursor-pointer text-left">
                         <div
@@ -323,7 +403,13 @@
                             Essays & Papers</h3>
                         <p class="text-slate-500 leading-relaxed">Plagiarism-free, well-researched nursing papers
                             formatted in APA style.</p>
+                        <div class="mt-4 pt-3 border-t border-slate-100">
+                            <a href="/login"
+                                class="text-sm font-bold text-primary hover:underline flex items-center gap-1">Start an
+                                Essay <span class="text-lg">→</span></a>
+                        </div>
                     </div>
+
                     <div
                         class="group hover-card bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 cursor-pointer text-left">
                         <div
@@ -333,6 +419,11 @@
                             Care Plans</h3>
                         <p class="text-slate-500 leading-relaxed">Detailed, patient-centered Nursing Care Plans written
                             to clinical standards.</p>
+                        <div class="mt-4 pt-3 border-t border-slate-100">
+                            <a href="/login"
+                                class="text-sm font-bold text-primary hover:underline flex items-center gap-1">Order
+                                Care Plan <span class="text-lg">→</span></a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -651,7 +742,18 @@
             calculate();
         }
 
-        // --- 4. CAROUSEL LOGIC ---
+        // --- 4. TOGGLE LISTS ---
+        document.querySelectorAll('.toggle-platform').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const list = document.getElementById(targetId);
+                const isHidden = list.classList.contains('hidden');
+                list.classList.toggle('hidden', !isHidden);
+                button.textContent = isHidden ? button.textContent.replace('▼', '▲') : button.textContent.replace('▲', '▼');
+            });
+        });
+
+        // --- 5. CAROUSEL LOGIC ---
         const track = document.querySelector('.carousel-track');
         const slides = Array.from(track.children);
         const dots = Array.from(document.querySelectorAll('.dot'));

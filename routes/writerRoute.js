@@ -5,7 +5,7 @@ const { requireWriter } = require('../middlewares/roleAuth'); // Ensure this mat
 const writerRouter = express.Router();
 
 // Apply middleware
-writerRouter.use(requireWriter); 
+writerRouter.use(requireWriter);
 
 const IMAGE_PATHS = {
     logo: '/images/medical-team.png',
@@ -21,10 +21,10 @@ writerRouter.get('/dashboard', async (req, res) => {
         const myOrders = await Order.find({
             writerId: currentWriterId,
             // FIX: 'In Progress' must match the Enum in your Model exactly (Title Case)
-            status: { $in: ['In progress', 'Completed'] } 
+            status: { $in: ['In progress', 'Completed'] }
         })
-            .populate('userId', 'name email') 
-            .sort({ deadline: 1 }); 
+            .populate('userId', 'name email')
+            .sort({ deadline: 1 });
 
         res.render('writer/dashboard.html', {
             user: req.session.user,
@@ -60,7 +60,7 @@ writerRouter.post('/update-status', async (req, res) => {
 
         req.flash('success', `Order #${order._id.toString().slice(-6)} marked as ${newStatus}.`);
         res.redirect('/writer/dashboard'); // Ensure we redirect back to refresh the page
-        
+
     } catch (err) {
         console.error("Status Update Error:", err);
         req.flash('error', 'Failed to update status.');
@@ -76,7 +76,7 @@ writerRouter.get('/orders/:id', async (req, res) => {
 
         // 1. Fetch Order
         const order = await Order.findById(orderId)
-            .populate('userId', 'name'); 
+            .populate('userId', 'name');
 
         if (!order) {
             req.flash('error', 'Order not found.');
@@ -87,7 +87,7 @@ writerRouter.get('/orders/:id', async (req, res) => {
         // Writers can view an order ONLY if:
         // A) They are already assigned to it
         // B) The order is available for bidding
-        
+
         const isAssigned = order.writerId && order.writerId.toString() === writerId;
         const isOpenForBidding = order.status === 'Bidding' || order.status === 'Pending';
 
@@ -100,15 +100,113 @@ writerRouter.get('/orders/:id', async (req, res) => {
         res.render('writer/order-details.html', {
             order,
             user: req.session.user,
-            isWriter: true,         
-            isAssigned: isAssigned, 
-            images: IMAGE_PATHS 
+            isWriter: true,
+            isAssigned: isAssigned,
+            images: IMAGE_PATHS
         });
 
     } catch (err) {
         console.error("Writer Order View Error:", err);
         req.flash('error', 'Invalid Order ID.');
         res.redirect('/writer/dashboard');
+    }
+});
+
+writerRouter.get('/earnings', async (req, res) => {
+    try {
+        const currentWriterId = req.session.user.id;
+
+        // fetch all COMPLETED orders for this writer
+        const completeOrders = await Order.find({
+            writerId: currentWriterId,
+            status: 'Completed',
+        }).sort({ updatedAt: -1 });
+
+        // calculate total earnings - reduce array of orders to single sum
+        const totalEarnings = completeOrders.reduce((sum, order) => sum + (order.price || 0), 0);
+
+        // calculate pending (orders in progress)
+        const activeOrders = await Order.find({
+            writerId: currentWriterId,
+            status: 'In progress',
+        });
+        const pendingEarnings = activeOrders.reduce((sum, order) => sum + (order.price || 0), 0);
+
+        res.render('writer/earnings.html', {
+            user: req.session.user,
+            completeOrders,
+            stats: {
+                active: activeOrders,
+                total: totalEarnings,
+                pending: pendingEarnings,
+                count: completeOrders.length,
+            },
+            images: IMAGE_PATHS,
+        });
+    } catch (err) {
+        console.error("Writer Earnings Error", err);
+        req.flash('error', 'Could not load earnings data.');
+        res.redirect('/writer/dashboard');
+    }
+});
+
+writerRouter.post('/request-payout', (req, res) => {
+    try {
+        const amount = req.flash('success', `Payout request for $${amount} submitted successfully. Admin will review.`);
+        req.redirect('/writer/earnings');
+    } catch (err) {
+        console.error("Payout Error:", err);
+        res.redirect('/writer/earnings');
+    }
+});
+
+// 1. GET: Browse Available Jobs
+// Shows orders with status 'Bidding' (or 'Pending' depending on your workflow)
+writerRouter.get('/available', async (req, res) => {
+    try {
+        const availableOrders = await Order.find({
+            status: { $in: ['Pending', 'Bidding'] },
+            writerId: null, // ensure no one else has taken it
+        })
+            .populate('userId', 'name')
+            .sort({ deadline: 1 }); // urgent jobs first
+
+        res.render('writer/available.html', {
+            user: req.session.user,
+            orders: availableOrders,
+            images: IMAGE_PATHS,
+        });
+    } catch (err) {
+        console.error("Writer Available Error:", err);
+        req.flash('error', 'Could not load available jobs.');
+        req.redirect('/writer/dashboard');
+    }
+});
+
+// POST: Bid on an Order
+writerRouter.post('/bid', async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const currentWriterId = req.session.user.id;
+
+        // Instant Claim
+        const order = await Order.findOneAndUpdate(
+            { _id: orderId, writerId: null },
+            { writerId: currentWriterId, status: 'In progress' },
+            { new: true },
+        );
+
+        if (!order) {
+            req.flash('error', 'This order is no longer available.');
+        } else {
+            res.flash('success', 'You have successfully claimed this order!');
+        }
+
+        res.redirect('/writer/available');
+    } catch (err) {
+        console.error("Bidding Error:", err);
+        req.flash('error', 'Failed to place bid');
+        res.redirect('/writer/available');
     }
 });
 

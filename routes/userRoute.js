@@ -34,31 +34,48 @@ userRouter.get('/signup', (req, res) => {
 });
 
 userRouter.post('/signup', async (req, res, next) => {
-    const userData = req.body;
-
     try {
+        const userData = req.body;
+        const { password, email, name } = userData;
+
+        // validate password strength
+        if (!password || password.length < 8) {
+            req.flash('error', 'Password must be at least 8 characters long.');
+            return res.status(400).render('sign-up.html', {
+                images: IMAGE_PATHS,
+                error: 'Password must be at least 8 characters long.',
+                values: { name, email },
+            });
+        }
+
+        // create User
         const user = await UserService.createUser(userData);
 
-        // Render login page with user's email prefilled
-        res.status(201).render('login.html', {
-            images: IMAGE_PATHS,
-        });
+        // flash message for login page
+        req.flash('success', 'Account created! Please log in.');
+        req.status(201).redirect('/login');
+
     } catch (err) {
         console.error('Signup error:', err);
-        res.status(500).render('sign-up.html',
-            { images: IMAGE_PATHS },
-            { error: 'Signup failed. Please try again.' },
-        );
+
+        // handle specific errors
+        let errorMessage = "Signup failed. Please try again.";
+        if (err.code === 11000) { // MongoDB duplicate key error
+            errorMessage = 'Email already registered';
+        }
+
+        res.status(500).render('sign-up.html', {
+            images: IMAGE_PATHS,
+            error: errorMessage,
+            values: req.body,
+        });
         // or you can call next(err) if you have error-handling middleware
         next(err);
     }
 });
 
 
-// Protect routes with privileged information
-userRouter.use(requireStudent);
-
-userRouter.get('/messages', (req, res) => {
+userRouter.get('/messages', requireStudent, (req, res) => {
     const user = req.session.user;
 
     if (!user) return res.redirect('/login');
@@ -68,7 +85,7 @@ userRouter.get('/messages', (req, res) => {
     });
 });
 
-userRouter.get('/topup', (req, res) => {
+userRouter.get('/topup', requireStudent, (req, res) => {
     const user = req.session.user;
 
     if (!user) return res.redirect('/login');
@@ -79,7 +96,7 @@ userRouter.get('/topup', (req, res) => {
     })
 });
 
-userRouter.get('/profile', async (req, res) => {
+userRouter.get('/profile', requireStudent, async (req, res) => {
     const sessionUser = req.session.user;
 
     if (!sessionUser) {

@@ -2,12 +2,13 @@ const express = require('express');
 const upload = require('../middlewares/upload');
 const Order = require('../models/orders');
 const OrderService = require('../services/orderService');
-const { requireStudent } = require('../middlewares/roleAuth'); // Import middleware
+// IMPORTANT: Import requireStudent to protect specific routes
+const { requireStudent } = require('../middlewares/roleAuth');
 
 const orderRouter = express.Router();
 
 const IMAGE_PATHS = {
-    logo: '/images/medical-team.png', // Fixed double slash typo
+    logo: '/images/medical-team.png',
 };
 
 // Wrapper to catch "File Too Large" errors gracefully
@@ -44,7 +45,7 @@ orderRouter.post('/place-order', requireStudent, uploadMiddleware, async (req, r
         let fileData = [];
         if (req.files && req.files.length > 0) {
             fileData = req.files.map(file => ({
-                originalName: file.originalname, // Fixed: originalname (lowercase 'n' in multer)
+                originalName: file.originalname,
                 filename: file.filename,
                 path: "/uploads/" + user.id + "/" + file.filename,
                 size: file.size,
@@ -101,7 +102,7 @@ orderRouter.get('/orders', requireStudent, async (req, res) => {
 // Accessible by: Owner (Student), Assigned Writer, or Admin
 orderRouter.get('/orders/:id', async (req, res) => {
     try {
-        // 1. Basic Login Check
+        // 1. Basic Login Check (We don't use requireStudent here so Admins/Writers can pass)
         if (!req.session.user) {
             req.flash('error', 'Please login first.');
             return res.redirect('/login');
@@ -127,14 +128,14 @@ orderRouter.get('/orders/:id', async (req, res) => {
         // 4. Block Unauthorized Users
         if (!isOwner && !isAssignedWriter && !isAdmin) {
             req.flash('error', 'You are not authorized to view this order');
-            // Redirect based on role
+            // Redirect based on role to keep them in their dashboard
             if (user.role === 'admin') return res.redirect('/admin/dashboard');
-            if (user.role === 'tutor') return res.redirect('/writer/dashboard');
+            if (user.role === 'writer') return res.redirect('/writer/dashboard');
             return res.redirect('/profile');
         }
 
         // 5. Render Template
-        // We pass flags so the template can show/hide buttons
+        // We pass flags so the template can show/hide buttons if needed
         res.render('order-details.html', {
             order,
             user,

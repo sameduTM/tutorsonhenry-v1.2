@@ -55,7 +55,7 @@ adminRouter.post('/assign-order', async (req, res) => {
     } catch (err) {
         console.error("Assignment Error:", err);
         req.flash('error', 'Failed to assign a tutor');
-        res.redirect('/dashboard');
+        res.redirect('/admin/dashboard');
     }
 });
 
@@ -72,7 +72,7 @@ adminRouter.get('/users', async (req, res) => {
     } catch (err) {
         console.error("Admin Users Page Error:", err);
         req.flash('error', 'Could not load user list.');
-        res.redirect('dashboard');
+        res.redirect('/admin/dashboard');
     }
 });
 

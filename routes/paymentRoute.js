@@ -4,63 +4,64 @@ const User = require('../models/user');
 
 const paymentRouter = express.Router();
 
-// configuration
+// --- CONFIGURATION ---
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || 'YOUR_PAYPAL_CLIENT_ID';
+const PAYPAL_SECRET = process.env.PAYPAL_SECRET || 'YOUR_PAYPAL_SECRET';
+
 paypal.configure({
-    mode: 'sandbox', // change to live for production
-    client_id: 'YOUR_PAYPAL_CLIENT_ID',
-    client_secret: 'YOUR_PAYPAL_SECRET',
+    mode: 'sandbox', // change to 'live' for production
+    client_id: PAYPAL_CLIENT_ID,
+    client_secret: PAYPAL_SECRET,
 });
 
-// handles form submission from topup.html
+// --- 1. CREATE PAYMENT ROUTE ---
 paymentRouter.post('/create-payment', async (req, res) => {
     try {
-        const { amount, gateway } = req.body;
+        const { amount } = req.body;
         const user = req.session.user;
 
         if (!user) return res.redirect('/login');
         if (!amount) {
-            req.flash('error', 'Please Enter amount.');
+            req.flash('error', 'Please select an amount.');
             return res.redirect('/topup');
         }
 
         const totalAmount = parseFloat(amount);
 
-        // --- OPTION A: PAYPAL ---
-        if (gateway === 'paypal') {
-            const create_payment_json = {
-                intent: "sale",
-                payer: { "payment_method": "paypal" },
-                redirect_urls: {
-                    return_url: `${req.protocol}://${req.get('host')}/payment/success?amount=${totalAmount}&gateway=paypal`,
-                    cancel_url: `${req.protocol}://${req.get('host')}/topup`,
-                },
-                transactions: [{
-                    item_list: {
-                        items: [{
-                            name: "Wallet Top-up",
-                            sku: "001",
-                            price: totalAmount.toString(),
-                            currency: "USD",
-                            quantity: 1,
-                        }]
-                    },
-                    amount: {
+        // PAYPAL CONFIGURATION
+        const create_payment_json = {
+            intent: "sale",
+            payer: { "payment_method": "paypal" },
+            redirect_urls: {
+                return_url: `${req.protocol}://${req.get('host')}/payment/success?amount=${totalAmount}`,
+                cancel_url: `${req.protocol}://${req.get('host')}/topup`,
+            },
+            transactions: [{
+                item_list: {
+                    items: [{
+                        name: "Wallet Top-up",
+                        sku: "001",
+                        price: totalAmount.toString(),
                         currency: "USD",
-                        total: totalAmount.toString(),
-                    },
-                    description: "Wallet funds for Tutorsonhenry"
-                }]
-            }
+                        quantity: 1,
+                    }]
+                },
+                amount: {
+                    currency: "USD",
+                    total: totalAmount.toString(),
+                },
+                description: `Wallet funds for ${user.email}`
+            }]
         };
 
-        // --- OPTION B: PAYSTACK (VISA/MASTERCARD)
-        // To be added later
-
+        // CREATE PAYMENT
         paypal.payment.create(create_payment_json, (error, payment) => {
             if (error) {
-                throw error;
+                console.error("PayPal Init Error:", error);
+                req.flash('error', 'PayPal initialization failed. Please try again.');
+                return res.redirect('/topup');
             } else {
-                // find the approval URL to redirect user
+                // Find approval URL
                 for (let i = 0; i < payment.links.length; i++) {
                     if (payment.links[i].rel === 'approval_url') {
                         return res.redirect(payment.links[i].href);
@@ -70,49 +71,44 @@ paymentRouter.post('/create-payment', async (req, res) => {
         });
 
     } catch (err) {
-        console.error("Payment Error:", err);
-        req.flash('error', 'Payment initialization failed.');
+        console.error("Payment Route Error:", err);
+        req.flash('error', 'System error initializing payment.');
         res.redirect('/topup');
     }
 });
 
-// SUCCESS ROUTE (Adds money to wallet)
-// In production - use webhooks for security
-// simplfied version for demonstration
+// --- 2. SUCCESS ROUTE ---
 paymentRouter.get('/payment/success', async (req, res) => {
     try {
-        const { amount, gateway, paymentId, PayerID } = req.query;
+        const { amount, paymentId, PayerID } = req.query;
         const user = req.session.user;
 
         if (!user) return res.redirect('/login');
 
-        // handle PayPal execution
-        if (gateway === 'paypal') {
-            const execute_payment_json = { payer_id: PayerID };
-            // wrap the SDK in a promise to await it
-            await new Promise((resolve, reject) => {
-                paypal.payment.execute(paymentId, execute_payment_json, (error, payment) => {
-                    if (error) reject(error);
-                    else resolve(payment);
+        const execute_payment_json = { payer_id: PayerID };
+
+        // EXECUTE PAYMENT
+        paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) => {
+            if (error) {
+                console.error("PayPal Execute Error:", error.response);
+                req.flash('error', 'Transaction failed at the final step.');
+                return res.redirect('/topup');
+            } else {
+                // Success: Update DB
+                await User.findByIdAndUpdate(user.id, {
+                    $inc: { walletBalance: parseFloat(amount) }
                 });
-            });
-        }
 
-        // UPDATE DATABASE: Add funds to user wallet
-        // Ensure your User model has a 'walletBalance' field (Number)
-        await User.findByIdAndUpdate(user.id, {
-            $inc: { walletBalance: parseFloat(amount) }
+                // Update Session
+                req.session.user.walletBalance = (req.session.user.walletBalance || 0) + parseFloat(amount);
+
+                req.flash('success', `Successfully added $${amount} to your wallet!`);
+                return res.redirect('/profile');
+            }
         });
-
-        // update session so the header updates immediately
-        req.session.user.walletBalance = (req.session.user.walletBalance || 0) + parseFloat(amount);
-
-        req.flash('success', `Successfully added $${amount} to your wallet!`);
-        res.redirect('/profile');
-
     } catch (err) {
-        console.error(err);
-        req.flash('error', 'Transaction failed or cancelled.');
+        console.error("Success Route Logic Error:", err);
+        req.flash('error', 'Transaction verification error.');
         res.redirect('/topup');
     }
 });

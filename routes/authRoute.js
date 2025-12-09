@@ -30,13 +30,24 @@ authRouter.post('/login', async (req, res) => {
             id: user.id,
             name: user.name,
             email: user.email,
-            role: user.role,
+            role: user.role, // Essential for middleware checks
             walletBalance: user.walletBalance || 0,
         };
 
         req.session.save(() => {
-            res.redirect('/profile');
+            // ROLE-BASED REDIRECT LOGIC
+            if (user.role === 'admin') {
+                return res.redirect('/admin/dashboard');
+            }
+            else if (user.role === 'writer') {
+                return res.redirect('/writer/dashboard');
+            }
+            else {
+                // Default: Student
+                return res.redirect('/profile');
+            }
         });
+
     } catch (err) {
         console.error(err);
         req.flash("error", "Something went wrong. Please try again.");
@@ -46,7 +57,7 @@ authRouter.post('/login', async (req, res) => {
 
 // Logout route
 authRouter.get('/logout', (req, res) => {
-    // Destroy the sessi0
+    // Destroy the session
     req.session.destroy(err => {
         if (err) {
             console.error('Error destroying session', err);
