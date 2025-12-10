@@ -181,6 +181,8 @@
                             class="font-bold text-gray-900"></span></p>
 
                     <form action="/admin/update-role" method="POST" id="roleForm">
+                        <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
                         <input type="hidden" name="targetUserId" id="modalUserId">
 
                         <label class="block text-sm font-bold text-gray-700 mb-2">Select New Role</label>

@@ -1,3 +1,4 @@
+const csrf = require('csurf');
 const express = require('express');
 const flash = require('express-flash');
 const { format } = require('date-fns');
@@ -55,6 +56,16 @@ app.use(session({
     saveUninitialized: false,
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
+
+// Enable CSRF protection
+const csrfProtection = csrf();
+app.use(csrfProtection);
+
+// Pass the token to all templates automatically
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 
 // register routes
 app.use('/admin', adminRouter);

@@ -141,14 +141,21 @@
 
             <div class="max-w-5xl mx-auto mb-6">
                 {% if messages.success %}
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm flex items-center animate-pulse">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <div
+                    class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm flex items-center animate-pulse">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     <p class="font-medium">{{ messages.success }}</p>
                 </div>
                 {% endif %}
                 {% if messages.error %}
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm flex items-center animate-shake">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div
+                    class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm flex items-center animate-shake">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                     <p class="font-medium">{{ messages.error }}</p>
                 </div>
                 {% endif %}
@@ -178,6 +185,7 @@
                         <h3 class="text-lg font-bold text-gray-800 mb-6">Add Funds</h3>
 
                         <form action="/create-payment" method="POST" id="paymentForm">
+                            <input type="hidden" name="_csrf" value="{{ csrfToken }}">
 
                             <label class="block text-sm font-semibold text-gray-700 mb-3">1. Select Amount</label>
                             <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-6">

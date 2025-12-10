@@ -101,6 +101,8 @@
                             </a>
 
                             <form action="/writer/bid" method="POST" class="flex-1">
+                                <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
                                 <input type="hidden" name="orderId" value="{{ order._id }}">
                                 <button type="submit"
                                     class="w-full py-2 rounded-lg bg-purple-600 text-white font-semibold text-sm hover:bg-purple-700 transition shadow-sm">

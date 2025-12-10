@@ -1,5 +1,4 @@
 const express = require('express');
-
 const OrderService = require('../services/orderService');
 const { requireStudent } = require('../middlewares/roleAuth');
 const UserService = require('../services/userService');
@@ -53,24 +52,27 @@ userRouter.post('/signup', async (req, res, next) => {
 
         // flash message for login page
         req.flash('success', 'Account created! Please log in.');
-        req.status(201).redirect('/login');
+        res.status(201).redirect('/login');
 
     } catch (err) {
         console.error('Signup error:', err);
 
-        // handle specific errors
         let errorMessage = "Signup failed. Please try again.";
-        if (err.code === 11000) { // MongoDB duplicate key error
-            errorMessage = 'Email already registered';
+        let statusCode = 500;
+
+        // Handle Duplicate Email Error
+        if (err.code === 11000) {
+            errorMessage = 'That email is already registered. Please login.';
+            req.flash('error', 'Email already registered');
+            statusCode = 400; // User error, not server error
         }
 
-        res.status(500).render('sign-up.html', {
+        // FIX: Use 'return' here and REMOVE next(err) to prevent the "Headers Sent" crash
+        return res.status(statusCode).render('sign-up.html', {
             images: IMAGE_PATHS,
             error: errorMessage,
-            values: req.body,
+            values: req.body, // Keeps the form filled
         });
-        // or you can call next(err) if you have error-handling middleware
-        next(err);
     }
 });
 
@@ -115,11 +117,11 @@ userRouter.get('/profile', requireStudent, async (req, res) => {
         // Get orders list
         const ordersData = await OrderService.getOrdersByUserId(sessionUser);
 
-        // render template with data
         res.render('profile.html', {
             user: currentUser,
             images: IMAGE_PATHS,
-            orders: ordersData,
+            // FIX: Ensure we pass the array (.orders), not the wrapper object
+            orders: ordersData.orders || [],
             currentPage: ordersData.currentPage,
             totalPages: ordersData.totalPages,
             stats: {

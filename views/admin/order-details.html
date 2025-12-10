@@ -103,6 +103,8 @@
                             <div>
                                 <p class="text-xs text-gray-500 uppercase font-bold mb-2">Re-assign Tutor</p>
                                 <form action="/admin/assign-order" method="POST" class="flex gap-2">
+                                    <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
                                     <input type="hidden" name="orderId" value="{{ order._id }}">
                                     <select name="tutorId" class="text-sm p-2 border rounded flex-1">
                                         <option value="">Change Writer...</option>

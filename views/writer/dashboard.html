@@ -193,6 +193,8 @@
                                 <td class="p-4">
                                     {% if order.status != 'Completed' %}
                                     <form action="/writer/update-status" method="POST" class="flex items-center gap-2">
+                                        <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
                                         <input type="hidden" name="orderId" value="{{ order._id }}">
                                         <select name="newStatus"
                                             class="text-xs p-1.5 rounded border border-gray-300 focus:ring-purple-500">

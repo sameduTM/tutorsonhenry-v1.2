@@ -179,7 +179,7 @@ writerRouter.get('/available', async (req, res) => {
     } catch (err) {
         console.error("Writer Available Error:", err);
         req.flash('error', 'Could not load available jobs.');
-        req.redirect('/writer/dashboard');
+        res.redirect('/writer/dashboard');
     }
 });
 
@@ -199,7 +199,7 @@ writerRouter.post('/bid', async (req, res) => {
         if (!order) {
             req.flash('error', 'This order is no longer available.');
         } else {
-            res.flash('success', 'You have successfully claimed this order!');
+            req.flash('success', 'You have successfully claimed this order!');
         }
 
         res.redirect('/writer/available');

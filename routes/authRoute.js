@@ -13,9 +13,16 @@ authRouter.get('/login', (req, res) => {
 });
 
 authRouter.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-
     try {
+        const { email, password } = req.body;
+
+        // 🛡️ SECURITY FIX: Ensure email is a string (Prevents NoSQL Injection)
+        if (typeof email !== 'string' || typeof password !== 'string') {
+            console.log("⛔ BLOCKED: Malicious Object Injection detected");
+            req.flash('error', 'Invalid input format');
+            return res.redirect('/login');
+        }
+
         // attempt to find a user
         const user = await UserService.getUser(email, password);
 

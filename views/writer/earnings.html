@@ -119,6 +119,8 @@
                     </div>
 
                     <form action="/writer/request-payout" method="POST" class="relative z-10">
+                        <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
                         <input type="hidden" name="amount" value="{{ user.walletBalance }}">
                         <button type="submit" {% if user.walletBalance <=0 %}disabled{% endif %}
                             class="bg-white text-purple-700 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition">

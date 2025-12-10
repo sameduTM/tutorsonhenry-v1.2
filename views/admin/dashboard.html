@@ -171,6 +171,8 @@
                                     </div>
                                     {% else %}
                                     <form action="/admin/assign-order" method="POST" class="flex items-center gap-2">
+                                        <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
                                         <input type="hidden" name="orderId" value="{{ order._id }}">
                                         <select name="writerId" required
                                             class="text-xs p-1.5 rounded border border-gray-300 focus:ring-blue-500 bg-white">
