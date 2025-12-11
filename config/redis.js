@@ -1,7 +1,7 @@
 const { createClient } = require('redis');
 
 const redisClient = createClient({
-    url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+    url: process.env.REDIS_URL || 'redis-14573.c278.us-east-1-4.ec2.cloud.redislabs.com:14573',
 });
 
 redisClient.on('error', (err) => {
