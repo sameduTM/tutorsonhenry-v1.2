@@ -4,6 +4,7 @@ const Order = require('../models/orders');
 const OrderService = require('../services/orderService');
 // IMPORTANT: Import requireStudent to protect specific routes
 const { requireStudent } = require('../middlewares/roleAuth');
+const MessageService = require('../services/messageService');
 
 const orderRouter = express.Router();
 
@@ -114,6 +115,9 @@ orderRouter.get('/orders/:id', async (req, res) => {
         // 2. Fetch Order
         const order = await OrderService.getOrderById(orderId);
 
+        // ➕ FETCH MESSAGES
+        const messages = await MessageService.getMessagesByOrder(orderId);
+
         if (!order) {
             req.flash('error', 'Order not found.');
             return res.redirect('/profile');
@@ -139,6 +143,7 @@ orderRouter.get('/orders/:id', async (req, res) => {
         res.render('order-details.html', {
             order,
             user,
+            messages,
             isWriter: isAssignedWriter,
             isAdmin: isAdmin,
             images: IMAGE_PATHS,

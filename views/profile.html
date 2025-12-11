@@ -260,7 +260,7 @@
                             </tr>
                         </thead>
                         <tbody class="text-sm text-gray-700 divide-y divide-gray-100">
-                            {% for order in orders.orders %}
+                            {% for order in orders %}
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="p-4 font-semibold">#{{ order.id or order._id }}</td>
                                 <td class="p-4 max-w-xs truncate">{{ order.title }}</td>

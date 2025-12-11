@@ -1,11 +1,17 @@
-const csrf = require('csurf');
+require('dotenv').config();
+
+// --- IMPORTS ---
 const express = require('express');
 const flash = require('express-flash');
 const { format } = require('date-fns');
+const helmet = require('helmet');
 const path = require('path');
-const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo').default || require('connect-mongo');
 const nunjucks = require('nunjucks');
+const rateLimit = require('express-rate-limit');
 const session = require('express-session');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 const userRouter = require('./routes/userRoute');
 const authRouter = require('./routes/authRoute');
@@ -13,67 +19,106 @@ const orderRouter = require('./routes/orderRoute');
 const paymentRouter = require('./routes/paymentRoute');
 const adminRouter = require('./routes/adminRoute');
 const writerRouter = require('./routes/writerRoute');
+const messageRouter = require('./routes/messageRoute');
 
-// establish conection with DB before starting server
+// --- ENV CHECK ---
+if (!process.env.SESSION_SECRET) {
+    console.error("❌ FATAL ERROR: SESSION_SECRET is not defined.");
+    process.exit(1);
+}
+
+// --- DB CONNECTION ---
 require('./config/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Static files
-app.use(express.static(path.join(__dirname, 'views/static')));
+app.set('trust proxy', 1);
 
-// serves file uploads
+// --- SECURITY HEADERS ---
+app.use(helmet({
+    contentSecurityPolicy: false,
+}));
+
+// --- STATIC FILES ---
+app.use(express.static(path.join(__dirname, 'views/static')));
 app.use('/uploads', express.static('uploads'));
 
-// Configure nunjucks to use .html
+// --- TEMPLATE ENGINE ---
 const env = nunjucks.configure(path.join(__dirname, 'views'), {
     autoescape: true,
     express: app,
     watch: true,
 });
 
-// register date filter
 env.addFilter('date', (date, formatStr) => {
     if (!date) return "N/A";
-    // Default format
     return format(new Date(date), formatStr || 'MMM d, yyyy');
 });
 
-// html is the view engine
 app.set('view engine', 'html');
 app.engine('html', nunjucks.render);
 
-// Middleware
+// --- MIDDLEWARE ---
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(process.env.SESSION_SECRET));
 app.use(flash());
 
-// session store
+// --- SESSION ---
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/tutorsonDB' }),
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: true,
+    }
 }));
 
-// Enable CSRF protection
-const csrfProtection = csrf();
-app.use(csrfProtection);
 
-// Pass the token to all templates automatically
-app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken();
-    next();
-});
-
-// register routes
+// --- ROUTES ---
+// Mount specific routers first to prevent conflicts
 app.use('/admin', adminRouter);
+app.use('/writer', writerRouter);
 app.use(authRouter);
+app.use(messageRouter);
 app.use(orderRouter);
 app.use(paymentRouter);
-app.use(userRouter);
-app.use('/writer', writerRouter);
+app.use(userRouter); // Usually handles "/" so keep it last or ensure it doesn't block others
+
+// --- ERROR HANDLING ---
+app.use((req, res) => {
+    res.status(404);
+    try {
+        res.render('404.html', { images: { logo: '/images/medical-team.png' } });
+    } catch (e) {
+        res.send("404 - Page Not Found");
+    }
+});
+
+app.use((err, req, res, next) => {
+    // CSRF Error Handler
+    if (err.code === 'EBADCSRFTOKEN') {
+        console.warn("⚠️ CSRF Validation Failed");
+        req.flash('error', 'Form session expired. Please try again.');
+        return res.redirect('back');
+    }
+
+    console.error("Server Error:", err.stack);
+    res.status(500);
+    try {
+        res.render('500.html', {
+            images: { logo: '/images/medical-team.png' },
+            error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error',
+        });
+    } catch (e) {
+        res.send("500 - Internal Server Error");
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server running at port:${PORT}`);

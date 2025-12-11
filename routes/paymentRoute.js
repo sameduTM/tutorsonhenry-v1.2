@@ -33,7 +33,7 @@ paymentRouter.post('/create-payment', async (req, res) => {
             intent: "sale",
             payer: { "payment_method": "paypal" },
             redirect_urls: {
-                return_url: `${req.protocol}://${req.get('host')}/payment/success?amount=${totalAmount}`,
+                return_url: `${req.protocol}://${req.get('host')}/payment/success`,
                 cancel_url: `${req.protocol}://${req.get('host')}/topup`,
             },
             transactions: [{
@@ -61,7 +61,21 @@ paymentRouter.post('/create-payment', async (req, res) => {
                 req.flash('error', 'PayPal initialization failed. Please try again.');
                 return res.redirect('/topup');
             } else {
-                // Find approval URL
+                // Store payment details in SESSION
+                req.session.pendingPayment = {
+                    id: payment.id,
+                    amount: totalAmount,
+                }
+
+                // Save sessionn too ensure data persists
+                req.session.save((err) => {
+                    if (err) {
+                        console.error("Session Save Error:", err);
+                        return res.redirect('/topup');
+                    }
+                });
+
+                // Find approval URL and redirect
                 for (let i = 0; i < payment.links.length; i++) {
                     if (payment.links[i].rel === 'approval_url') {
                         return res.redirect(payment.links[i].href);
@@ -80,11 +94,29 @@ paymentRouter.post('/create-payment', async (req, res) => {
 // --- 2. SUCCESS ROUTE ---
 paymentRouter.get('/payment/success', async (req, res) => {
     try {
-        const { amount, paymentId, PayerID } = req.query;
+        const { paymentId, PayerID } = req.query;
         const user = req.session.user;
 
         if (!user) return res.redirect('/login');
 
+        // Retrieve amount from session
+        const pendingPayment = req.session.pendingPayment;
+
+        // verify pending payment record
+        if (!pendingPayment) {
+            req.flash('error', 'Session expiired on invalid payment request.');
+            return res.redirect('/topup');
+        }
+
+        // Verfy the IDs match (Basic security check)
+        if (pendingPayment.id !== paymentId) {
+            console.error(`Security Mismatch! Session ID: ${pendingPayment}, Query ID: ${paymentId}`);
+            delete req.session.pendingPayment; // clear invalid session
+            req.flash('error', 'Security validation failed');
+            return res.redirect('/topup');
+        }
+
+        const secureAmount = parseFloat(pendingPayment.amount);
         const execute_payment_json = { payer_id: PayerID };
 
         // EXECUTE PAYMENT
@@ -96,13 +128,17 @@ paymentRouter.get('/payment/success', async (req, res) => {
             } else {
                 // Success: Update DB
                 await User.findByIdAndUpdate(user.id, {
-                    $inc: { walletBalance: parseFloat(amount) }
+                    $inc: { walletBalance: secureAmount }
                 });
 
-                // Update Session
-                req.session.user.walletBalance = (req.session.user.walletBalance || 0) + parseFloat(amount);
+                // Update Session User Data
+                req.session.user.walletBalance = (req.session.user.walletBalance || 0) + secureAmount;
 
-                req.flash('success', `Successfully added $${amount} to your wallet!`);
+                // Clear pending payment from session
+                delete req.session.pendingPayment;
+                req.session.save();
+
+                req.flash('success', `Successfully added $${secureAmount} to your wallet!`);
                 return res.redirect('/profile');
             }
         });

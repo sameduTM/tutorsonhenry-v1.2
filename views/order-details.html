@@ -140,35 +140,45 @@
                         </div>
 
                         <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chatContainer">
-
-                            <div class="flex gap-3">
-                                <div
-                                    class="h-8 w-8 rounded-full bg-indigo-100 flex-shrink-0 flex items-center justify-center text-xs font-bold text-indigo-700">
-                                    W</div>
-                                <div class="bg-gray-100 p-3 rounded-2xl rounded-tl-none max-w-sm text-sm text-gray-700">
-                                    Hello! I have started working on your order: <strong>{{ order.title }}</strong>. I
-                                    will update you soon.
-                                    <div class="text-[10px] text-gray-400 mt-1">10:30 AM</div>
-                                </div>
-                            </div>
-
+                            {% for msg in messages %}
+                            {% if msg.senderId.toString() == user.id.toString() %}
                             <div class="flex gap-3 flex-row-reverse">
                                 <div class="bg-blue-600 p-3 rounded-2xl rounded-tr-none max-w-sm text-sm text-white">
-                                    Thanks! Please make sure to follow the APA 7th edition guidelines I attached.
-                                    <div class="text-[10px] text-blue-200 mt-1">10:32 AM</div>
+                                    {{ msg.content }}
+                                    <div class="text-[10px] text-blue-200 mt-1">{{ msg.createdAt | date("h:mm a") }}
+                                    </div>
                                 </div>
                             </div>
-
+                            {% else %}
+                            <div class="flex gap-3">
+                                <div
+                                    class="h-8 w-8 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-xs font-bold text-gray-700">
+                                    {{ msg.senderName | first | upper }}
+                                </div>
+                                <div class="bg-gray-100 p-3 rounded-2xl rounded-tl-none max-w-sm text-sm text-gray-700">
+                                    {{ msg.content }}
+                                    <div class="text-[10px] text-gray-400 mt-1">
+                                        <span class="font-bold">{{ msg.senderName }}</span> • {{ msg.createdAt |
+                                        date("h:mm a") }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% else %}
+                            <p class="text-center text-gray-400 text-sm mt-10">No messages yet. Start the conversation!
+                            </p>
+                            {% endfor %}
                         </div>
 
                         <div class="p-4 border-t border-gray-100 bg-white rounded-b-xl">
-                            <form class="flex gap-2">
-                                <button type="button"
-                                    class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50">
-                                    📎
-                                </button>
-                                <input type="text" placeholder="Type a message..."
+                            <form action="/messages/send" method="POST" class="flex gap-2">
+                                <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+                                <input type="hidden" name="orderId" value="{{ order.id or order._id }}">
+
+                                <input type="text" name="content" placeholder="Type a message..." required
+                                    autocomplete="off"
                                     class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+
                                 <button type="submit"
                                     class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-blue-700">
                                     Send

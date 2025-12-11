@@ -1,6 +1,7 @@
 const express = require('express');
 const Order = require('../models/orders');
 const { requireWriter } = require('../middlewares/roleAuth'); // Ensure this matches your export name (requireTutor or requireWriter)
+const MessageService = require('../services/messageService');
 
 const writerRouter = express.Router();
 
@@ -78,6 +79,9 @@ writerRouter.get('/orders/:id', async (req, res) => {
         const order = await Order.findById(orderId)
             .populate('userId', 'name');
 
+        // ➕ FETCH MESSAGES
+        const messages = await MessageService.getMessagesByOrder(orderId);
+
         if (!order) {
             req.flash('error', 'Order not found.');
             return res.redirect('/writer/dashboard');
@@ -100,6 +104,7 @@ writerRouter.get('/orders/:id', async (req, res) => {
         res.render('writer/order-details.html', {
             order,
             user: req.session.user,
+            messages,
             isWriter: true,
             isAssigned: isAssigned,
             images: IMAGE_PATHS

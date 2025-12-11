@@ -3,7 +3,9 @@ const OrderService = require('../services/orderService');
 const { requireStudent } = require('../middlewares/roleAuth');
 const UserService = require('../services/userService');
 const User = require('../models/user');
+// ✅ IMPORT ORDER AND MESSAGE MODELS
 const Order = require('../models/orders');
+const Message = require('../models/message');
 
 const userRouter = express.Router();
 
@@ -37,7 +39,6 @@ userRouter.post('/signup', async (req, res, next) => {
         const userData = req.body;
         const { password, email, name } = userData;
 
-        // validate password strength
         if (!password || password.length < 8) {
             req.flash('error', 'Password must be at least 8 characters long.');
             return res.status(400).render('sign-up.html', {
@@ -47,49 +48,78 @@ userRouter.post('/signup', async (req, res, next) => {
             });
         }
 
-        // create User
         const user = await UserService.createUser(userData);
 
-        // flash message for login page
         req.flash('success', 'Account created! Please log in.');
         res.status(201).redirect('/login');
 
     } catch (err) {
         console.error('Signup error:', err);
-
         let errorMessage = "Signup failed. Please try again.";
         let statusCode = 500;
 
-        // Handle Duplicate Email Error
         if (err.code === 11000) {
             errorMessage = 'That email is already registered. Please login.';
             req.flash('error', 'Email already registered');
-            statusCode = 400; // User error, not server error
+            statusCode = 400;
         }
 
-        // FIX: Use 'return' here and REMOVE next(err) to prevent the "Headers Sent" crash
         return res.status(statusCode).render('sign-up.html', {
             images: IMAGE_PATHS,
             error: errorMessage,
-            values: req.body, // Keeps the form filled
+            values: req.body,
         });
     }
 });
 
-
-userRouter.get('/messages', requireStudent, (req, res) => {
+// ✅ UPDATED MESSAGES ROUTE
+userRouter.get('/messages', requireStudent, async (req, res) => {
     const user = req.session.user;
+    const selectedOrderId = req.query.orderId; // Get ID from URL query (?orderId=...)
 
     if (!user) return res.redirect('/login');
-    res.render('messages.html', {
-        images: IMAGE_PATHS,
-        user,
-    });
+
+    try {
+        // 1. Fetch all active orders for the sidebar list
+        // Filter: Only show orders that belong to this user
+        const conversations = await Order.find({ userId: user.id })
+            .sort({ updatedAt: -1 }) // Sort by most recent
+            .select('title status _id writerId');
+
+        // 2. If an order is selected, fetch its messages
+        let currentOrder = null;
+        let messages = [];
+
+        if (selectedOrderId) {
+            // Find the specific order in our list (security check included)
+            currentOrder = conversations.find(o => o._id.toString() === selectedOrderId);
+
+            if (currentOrder) {
+                // Fetch chat history for this order
+                messages = await Message.find({ orderId: selectedOrderId })
+                    .sort({ createdAt: 1 }); // Oldest first
+            }
+        }
+
+        // 3. Render the view with all necessary data
+        res.render('messages.html', {
+            images: IMAGE_PATHS,
+            user,
+            conversations, // The list for the sidebar
+            currentOrder,  // The active chat (if any)
+            messages,      // The chat history
+            csrfToken: req.csrfToken ? req.csrfToken() : (res.locals.csrfToken || '') // Handle CSRF safely
+        });
+
+    } catch (err) {
+        console.error("Messages Page Error:", err);
+        req.flash('error', 'Could not load messages.');
+        res.redirect('/profile');
+    }
 });
 
 userRouter.get('/topup', requireStudent, (req, res) => {
     const user = req.session.user;
-
     if (!user) return res.redirect('/login');
 
     res.render('topup.html', {
@@ -101,26 +131,20 @@ userRouter.get('/topup', requireStudent, (req, res) => {
 userRouter.get('/profile', requireStudent, async (req, res) => {
     const sessionUser = req.session.user;
 
-    if (!sessionUser) {
-        return res.redirect('/login');
-    }
-    try {
-        // fetch fresh user data (get latest walletBalance)
-        const currentUser = await User.findById(sessionUser.id);
+    if (!sessionUser) return res.redirect('/login');
 
-        // calculate order stats
+    try {
+        const currentUser = await User.findById(sessionUser.id);
         const pendingCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Pending' });
         const completedCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Completed' });
         const cancelledCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Cancelled' });
         const biddingCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Bidding' });
 
-        // Get orders list
         const ordersData = await OrderService.getOrdersByUserId(sessionUser);
 
         res.render('profile.html', {
             user: currentUser,
             images: IMAGE_PATHS,
-            // FIX: Ensure we pass the array (.orders), not the wrapper object
             orders: ordersData.orders || [],
             currentPage: ordersData.currentPage,
             totalPages: ordersData.totalPages,
