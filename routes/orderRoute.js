@@ -30,7 +30,8 @@ const uploadMiddleware = (req, res, next) => {
 // =========================================================
 
 // GET Page: Place Order
-orderRouter.get('/place-order', requireStudent, (req, res) => {
+orderRouter.get('/place-order', (req, res) => {
+    return res.redirect('/place-order-social');
     res.render('place-order.html', {
         images: IMAGE_PATHS,
         user: req.session.user,

@@ -44,16 +44,16 @@ async function connect() {
         // --------- 1. Proctored Exams ----------
         await ProctoredExam.insertMany([
             {
-                "name": "ProctorU",
+                "name": "Examplify",
+                "provider": "",
+                "type": "Remote Proctoring",
+                "website": "https://examity.com"
+            },
+            {
+                "name": "ProctorU / Meazure Learning / Guardian Browser",
                 "provider": "Meazure Learning",
                 "type": "Remote Proctoring",
                 "website": "https://www.proctoru.com"
-            },
-            {
-                "name": "Meazure Learning Remote Proctoring",
-                "provider": "Meazure Learning",
-                "type": "Remote Proctoring",
-                "website": ""
             },
             {
                 "name": "Proctortrack",
@@ -74,11 +74,8 @@ async function connect() {
                 "website": "https://www.psionline.com"
             },
             {
-                "name": "Examity",
-                "provider": "",
-                "type": "Remote Proctoring",
-                "website": "https://examity.com"
-            },
+                "name": "Auto Proctor",
+                "": ""            },
             {
                 "name": "Proctorio",
                 "provider": "",
@@ -92,7 +89,7 @@ async function connect() {
                 "website": ""
             },
             {
-                "name": "Respondus Monitor",
+                "name": "Respondus Lockdown",
                 "provider": "Respondus",
                 "type": "Remote Proctoring",
                 "website": "https://web.respondus.com/he/monitor"
@@ -132,6 +129,13 @@ async function connect() {
                 "provider": "",
                 "type": "Remote Proctoring",
                 "website": ""
+            },
+            {
+                "name": "ETS",
+                "provider": "Wheebox",
+                "type": "Remote Proctoring",
+                "website": "https://www.ets.org",
+                
             }
         ]
             , { ordered: false }).catch(e => console.log("Proctored exams might already exist."));

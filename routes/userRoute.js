@@ -28,6 +28,31 @@ userRouter.get('/', async (req, res) => {
     });
 });
 
+userRouter.get('/refund-policy', (req, res) => {
+    res.render('refund-policy.html', {
+        images: IMAGE_PATHS,
+    });
+});
+
+userRouter.get('/privacy-policy', (req, res) => {
+    res.render('privacy-policy.html', {
+        images: IMAGE_PATHS,
+    });
+});
+
+userRouter.get('/place-order-social', (req, res) => {
+    res.render('place-order-social.html', {
+        images: IMAGE_PATHS,
+    });
+});
+
+userRouter.get('/guides', (req, res) => {
+    res.render('guides.html', {
+        images: IMAGE_PATHS,
+    });
+});
+
+
 userRouter.get('/signup', (req, res) => {
     res.render('sign-up.html', {
         images: IMAGE_PATHS,
