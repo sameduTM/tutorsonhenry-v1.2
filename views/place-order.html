@@ -44,7 +44,7 @@
             <div class="flex items-center gap-3">
                 <div
                     class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                    {{ user.name | first | upper }}
+                    {{ (user.name or 'User')| first | upper }}
                 </div>
                 <div>
                     <h4 class="text-white text-sm font-semibold truncate w-32">{{ user.name }}</h4>

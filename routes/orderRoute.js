@@ -3,7 +3,7 @@ const upload = require('../middlewares/upload');
 const Order = require('../models/orders');
 const OrderService = require('../services/orderService');
 // IMPORTANT: Import requireStudent to protect specific routes
-const { requireStudent } = require('../middlewares/roleAuth');
+const { requireStudent, requireLogin } = require('../middlewares/roleAuth');
 const MessageService = require('../services/messageService');
 
 const orderRouter = express.Router();
@@ -30,11 +30,9 @@ const uploadMiddleware = (req, res, next) => {
 // =========================================================
 
 // GET Page: Place Order
-orderRouter.get('/place-order', (req, res) => {
-    return res.redirect('/place-order-social');
+orderRouter.get('/place-order', requireLogin, (req, res) => {
     res.render('place-order.html', {
         images: IMAGE_PATHS,
-        user: req.session.user,
     });
 });
 
