@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: false // Optional for Google SSO users
     }, // hashed password
     role: {
         type: String,
@@ -38,6 +38,23 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordExpires: {
         type: Date,
+    },
+    // Google OAuth fields
+    googleId: {
+        type: String,
+        sparse: true,
+        default: null
+    },
+    googleEmail: {
+        type: String,
+        sparse: true,
+        lowercase: true,
+        default: null
+    },
+    authProvider: {
+        type: String,
+        enum: ['email', 'google'],
+        default: 'email'
     }
 });
 

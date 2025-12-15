@@ -16,10 +16,19 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "prod": "NODE_ENV=production node server.js",
+    "pm2:start": "pm2 start server.js --name tutorsonhenry",
+    "pm2:stop": "pm2 stop tutorsonhenry",
+    "pm2:restart": "pm2 restart tutorsonhenry",
+    "pm2:logs": "pm2 logs tutorsonhenry",
+    "audit": "npm audit",
+    "audit:fix": "npm audit fix"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
     "connect-mongo": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
@@ -40,6 +49,9 @@
     "nodemailer": "^7.0.11",
     "nodemon": "^3.1.11",
     "nunjucks": "^3.2.4",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
     "paypal-rest-sdk": "^1.8.1",
     "redis": "^5.10.0"
   }

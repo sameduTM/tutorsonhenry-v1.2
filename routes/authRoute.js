@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const express = require('express');
 const nodemailer = require('nodemailer');
+const passport = require('passport');
 const User = require('../models/user');
 const UserService = require('../services/userService');
 
@@ -206,5 +207,48 @@ authRouter.post('/reset-password/:token', async (req, res) => {
         res.redirect('back');
     }
 });
+
+// ===== GOOGLE OAUTH ROUTES =====
+
+// Initiate Google OAuth flow
+authRouter.get('/auth/google', passport.authenticate('google', {
+    scope: ['profile', 'email']
+}));
+
+// Google OAuth callback
+authRouter.get('/auth/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/login', failureMessage: true }),
+    (req, res) => {
+        try {
+            // Store user in session (Passport handles this)
+            req.session.user = {
+                id: req.user._id,
+                name: req.user.name,
+                email: req.user.email,
+                role: req.user.role,
+                walletBalance: req.user.walletBalance || 0,
+                authProvider: req.user.authProvider
+            };
+
+            req.session.save(() => {
+                req.flash('success', `Welcome back, ${req.user.name}!`);
+                
+                // Redirect based on role
+                if (req.user.role === 'admin') {
+                    return res.redirect('/admin/dashboard');
+                } else if (req.user.role === 'writer') {
+                    return res.redirect('/writer/dashboard');
+                } else {
+                    // Student users go to profile (or my-orders if you prefer)
+                    return res.redirect('/profile');
+                }
+            });
+        } catch (err) {
+            console.error("Google OAuth Error:", err);
+            req.flash('error', 'Google login failed. Please try again.');
+            res.redirect('/login');
+        }
+    }
+);
 
 module.exports = authRouter;

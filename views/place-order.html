@@ -100,18 +100,6 @@
                     }}</span>
                 {% endif %}
             </a>
-
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Finance</p>
-
-            <a href="/topup"
-                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
-                    </path>
-                </svg>
-                <span class="font-medium">Wallet & Topup</span>
-            </a>
         </nav>
 
         <div class="p-4 border-t border-gray-800">
@@ -166,143 +154,170 @@
                     <p class="text-gray-600">Fill in the details below to get matched with a subject matter expert.</p>
                 </div>
 
-                <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-6 md:p-8">
-                    <form action="/place-order?_csrf={{ csrfToken }}" method="POST" enctype="multipart/form-data"
-                        class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-                        <div class="col-span-full">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Title of Assignment</label>
-                            <input type="text" name="title" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all">
-                        </div>
+                    <div class="bg-white p-8 rounded-3xl shadow-xl shadow-blue-900/5 border border-slate-100 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
 
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Type of Paper</label>
-                            <select name="type" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
-                                <option value="">Select Type</option>
-                                <option>Essay</option>
-                                <option>Research Paper</option>
-                                <option>Case Study</option>
-                                <option>Assignment</option>
-                                <option>Discussion Post</option>
-                                <option>Report</option>
-                            </select>
-                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <span class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span>
+                            Assignment Details
+                        </h3>
 
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Subject</label>
-                            <select name="subject" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
-                                <option value="">Select Subject</option>
-                                <option>English</option>
-                                <option>Nursing</option>
-                                <option>History</option>
-                                <option>Business</option>
-                                <option>Law</option>
-                                <option>Psychology</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Academic Level</label>
-                            <select name="level" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
-                                <option value="">Select Level</option>
-                                <option>High School</option>
-                                <option>College</option>
-                                <option>Undergraduate</option>
-                                <option>Masters</option>
-                                <option>PhD</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Writer Category</label>
-                            <select name="writerCategory" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
-                                <option>Standard</option>
-                                <option>Advanced</option>
-                                <option>Expert</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Deadline</label>
-                            <input type="datetime-local" name="deadline" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Pages</label>
-                            <input type="number" name="pages" min="1" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Spacing</label>
-                            <select name="spacing" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
-                                <option>Double Spaced</option>
-                                <option>Single Spaced</option>
-                            </select>
-                        </div>
-
-                        <div class="col-span-full">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Files</label>
-
-                            <div class="flex items-center justify-center w-full">
-                                <label id="dropzone"
-                                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-all group relative overflow-hidden">
-
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
-                                        <svg class="w-8 h-8 mb-3 text-gray-400 group-hover:text-blue-500 transition-colors"
-                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                                            </path>
-                                        </svg>
-                                        <p class="text-sm text-gray-500 group-hover:text-blue-600"><span
-                                                class="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p class="text-xs text-gray-400 mt-1">PDF, DOCX, JPG, PNG (Max 10MB)</p>
-                                    </div>
-
-                                    <input type="file" name="files" id="fileInput" multiple class="hidden" />
-                                </label>
-                            </div>
-
-                            <div id="filePreview" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 empty:hidden">
-                            </div>
-                        </div>
-
-                        <div class="col-span-full">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Detailed Instructions</label>
-                            <textarea name="instructions" rows="6" required
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all"
-                                placeholder="Please describe the requirements for your paper..."></textarea>
-                        </div>
-
-                        <div
-                            class="col-span-full bg-slate-900 text-white rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+                        <form id="orderForm" class="space-y-5">
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-200">Total Estimated Price</h3>
-                                <p class="text-xs text-gray-400">Final price depends on writer level & deadline.</p>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Subject / Assignment Title</label>
+                                <input type="text" id="subject" placeholder="e.g. Biology Essay, Math Assignment..."
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                                    oninput="updatePreview()">
                             </div>
-                            <div class="text-right">
-                                <p class="text-4xl font-bold text-white" id="priceDisplay">$0</p>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Academic Level</label>
+                                    <select id="level"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all bg-white"
+                                        onchange="updatePreview()">
+                                        <option value="College">College</option>
+                                        <option value="Undergrad">Undergrad</option>
+                                        <option value="Masters">Masters</option>
+                                        <option value="High School">High School</option>
+                                        <option value="PhD">PhD</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Due Date</label>
+                                    <input type="datetime-local" id="deadline" 
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                                        onchange="updatePreview()" required>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Instructions & Requirements</label>
+                                <textarea id="instructions" rows="4" placeholder="Paste specific instructions, requirements, or any additional details here..."
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all resize-none"
+                                    oninput="updatePreview()"></textarea>
+                            </div>
+
+                            <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-3">
+                                <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                                    </path>
+                                </svg>
+                                <p class="text-sm text-blue-800">Have files? You can attach PDFs, screenshots, or rubrics directly in the chat app after you click send.</p>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="space-y-8">
+
+                        <div class="bg-slate-800 p-6 rounded-3xl shadow-xl relative text-white">
+                            <div class="flex items-center justify-between mb-4 border-b border-gray-700 pb-4">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Message Preview</span>
+                                <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">Ready to Send</span>
+                            </div>
+                            <div class="font-mono text-sm leading-relaxed text-gray-300">
+                                <p>Hi TutorsOnHenry,</p>
+                                <p class="mt-2">I'd like to place an order.</p>
+                                <div class="my-3 pl-3 border-l-2 border-blue-600">
+                                    <p><strong class="text-white">Subject:</strong> <span id="prev-subject" class="text-blue-300">...</span></p>
+                                    <p><strong class="text-white">Level:</strong> <span id="prev-level" class="text-blue-300">College</span></p>
+                                    <p><strong class="text-white">Due:</strong> <span id="prev-deadline" class="text-blue-300">...</span></p>
+                                    <p class="mt-1"><strong class="text-white">Instructions:</strong></p>
+                                    <p id="prev-instructions" class="text-gray-400 italic">...</p>
+                                </div>
+                                <p>Please give me a quote. Thanks!</p>
                             </div>
                         </div>
 
-                        <input type="hidden" name="price" id="priceInput" value="0">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <span class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span>
+                                Send via...
+                            </h3>
 
-                        <div class="col-span-full mt-2">
-                            <button type="submit"
-                                class="w-full p-4 bg-blue-600 text-white rounded-xl text-lg font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:-translate-y-0.5 transition-all">
-                                Proceed to Payment
-                            </button>
+                            <div class="grid gap-4">
+                                <button onclick="sendOrder('app')" type="button"
+                                    class="group relative w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-2 border-blue-600 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-lg hover:-translate-y-1">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <div class="text-left">
+                                            <span class="block font-bold text-white">Send via App</span>
+                                            <span class="text-xs text-white/80">Fastest & Most Secure</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-white">→</span>
+                                </button>
+
+                                <button onclick="sendOrder('whatsapp')" type="button"
+                                    class="group relative w-full flex items-center justify-between p-4 bg-white hover:bg-[#25D366] border-2 border-slate-100 hover:border-[#25D366] rounded-2xl transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-full bg-[#25D366]/10 group-hover:bg-white/20 flex items-center justify-center text-[#25D366] group-hover:text-white transition-colors">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="text-left">
+                                            <span class="block font-bold text-slate-700 group-hover:text-white">WhatsApp</span>
+                                            <span class="text-xs text-slate-500 group-hover:text-white/80">Fastest Response (Instant)</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-400 group-hover:text-white">→</span>
+                                </button>
+
+                                <button onclick="sendOrder('email')" type="button"
+                                    class="group relative w-full flex items-center justify-between p-4 bg-white hover:bg-slate-800 border-2 border-slate-100 hover:border-slate-800 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-white/20 flex items-center justify-center text-slate-700 group-hover:text-white transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <div class="text-left">
+                                            <span class="block font-bold text-slate-700 group-hover:text-white">Email</span>
+                                            <span class="text-xs text-slate-500 group-hover:text-white/80">Good for large files</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-400 group-hover:text-white">→</span>
+                                </button>
+
+                                <button onclick="sendOrder('instagram')" type="button"
+                                    class="group relative w-full flex items-center justify-between p-4 bg-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 border-2 border-slate-100 hover:border-pink-500 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-full bg-pink-50 group-hover:bg-white/20 flex items-center justify-center text-pink-600 group-hover:text-white transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="2">
+                                                </rect>
+                                                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke-width="2">
+                                                </path>
+                                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="text-left">
+                                            <span class="block font-bold text-slate-700 group-hover:text-white">Instagram</span>
+                                            <span class="text-xs text-slate-500 group-hover:text-white/80">DM us directly</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-400 group-hover:text-white">→</span>
+                                </button>
+                            </div>
+
+                            <div id="copyToast" class="hidden mt-4 bg-green-100 text-green-800 text-sm px-4 py-3 rounded-xl text-center">
+                                Message copied to clipboard! Opening Instagram...
+                            </div>
                         </div>
-
-                    </form>
+                    </div>
                 </div>
             </div>
 
@@ -310,6 +325,20 @@
     </div>
 
     <script>
+        // Set minimum date to current date/time
+        const deadlineInput = document.getElementById('deadline');
+        if (deadlineInput) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            deadlineInput.min = minDateTime;
+        }
+
         const mobileSidebarBtn = document.getElementById('mobileSidebarBtn');
         const closeSidebarBtn = document.getElementById('closeSidebarBtn');
         const sidebar = document.getElementById('sidebar');
@@ -330,105 +359,156 @@
         });
 
         // Price Calculator
-        const pagesInput = document.querySelector('input[name="pages"]');
-        const priceInput = document.getElementById('priceInput');
-        const priceDisplay = document.getElementById('priceDisplay');
-        const pricePerPage = 10;
+        // CONTACT INFO CONSTANTS
+        const PHONE_NUMBER = "14072562717"; // Your WhatsApp Number
+        const EMAIL_ADDRESS = "prowriters1967@gmail.com";
+        const INSTAGRAM_HANDLE = "tutorsonhenry";
 
-        function updatePrice() {
-            const pages = Number(pagesInput.value) || 0;
-            const price = pages * pricePerPage;
-            priceDisplay.textContent = `$${price}`;
-            priceInput.value = price;
+        function updatePreview() {
+            const subject = document.getElementById('subject').value || '...';
+            const level = document.getElementById('level').value;
+            const deadline = document.getElementById('deadline').value;
+            const instructions = document.getElementById('instructions').value || '...';
+
+            // Format deadline from datetime-local to readable format
+            let formattedDeadline = '...';
+            if (deadline) {
+                const date = new Date(deadline);
+                formattedDeadline = date.toLocaleString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            document.getElementById('prev-subject').textContent = subject;
+            document.getElementById('prev-level').textContent = level;
+            document.getElementById('prev-deadline').textContent = formattedDeadline;
+            document.getElementById('prev-instructions').textContent = instructions;
         }
 
-        if (pagesInput) {
-            pagesInput.addEventListener('input', updatePrice);
+        function getMessageBody() {
+            const subject = document.getElementById('subject').value;
+            const level = document.getElementById('level').value;
+            const deadlineInput = document.getElementById('deadline').value;
+            const instructions = document.getElementById('instructions').value;
+
+            // Format deadline for message
+            let formattedDeadline = deadlineInput;
+            if (deadlineInput) {
+                const date = new Date(deadlineInput);
+                formattedDeadline = date.toLocaleString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            // Base text with line breaks encoded
+            return `Hi TutorsOnHenry, I'd like to place an order.\n\n*Subject:* ${subject}\n*Level:* ${level}\n*Due Date:* ${formattedDeadline}\n\n*Instructions:* ${instructions}\n\nPlease give me a quote.`;
         }
-        document.addEventListener("DOMContentLoaded", updatePrice);
 
-        // --- FILE PREVIEW LOGIC ---
-        const fileInput = document.getElementById('fileInput');
-        const filePreview = document.getElementById('filePreview');
-        const dropzone = document.getElementById('dropzone');
+        function sendOrderViaApp() {
+            const subject = document.getElementById('subject').value;
+            const level = document.getElementById('level').value;
+            const deadline = document.getElementById('deadline').value;
+            const instructions = document.getElementById('instructions').value;
 
-        // Handle File Selection
-        fileInput.addEventListener('change', handleFiles);
+            if (!subject || !deadline || !instructions) {
+                alert('Please fill in all required fields (Subject, Deadline, Instructions)');
+                return;
+            }
 
-        function handleFiles(e) {
-            const files = Array.from(e.target.files);
+            // Create order data
+            const orderData = {
+                subject,
+                level,
+                deadline,
+                instructions,
+                timestamp: new Date().toISOString(),
+                userEmail: '{{ user.email }}'
+            };
 
-            // Clear previous previews
-            filePreview.innerHTML = '';
+            // Show loading state
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span>Sending...';
+            btn.disabled = true;
 
-            if (files.length === 0) return;
-
-            files.forEach(file => {
-                const isImage = file.type.startsWith('image/');
-                const reader = new FileReader();
-
-                reader.onload = (event) => {
-                    // Create Card Container
-                    const card = document.createElement('div');
-                    card.className = "flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm relative overflow-hidden";
-
-                    // Content HTML
-                    let thumbnailHtml = '';
-
-                    if (isImage) {
-                        // Show actual image
-                        thumbnailHtml = `<img src="${event.target.result}" class="w-10 h-10 rounded-md object-cover border border-gray-100">`;
-                    } else {
-                        // Show Document Icon
-                        thumbnailHtml = `
-                        <div class="w-10 h-10 rounded-md bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        </div>`;
-                    }
-
-                    // File Size Formatter
-                    const size = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-
-                    card.innerHTML = `
-                    ${thumbnailHtml}
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-700 truncate">${file.name}</p>
-                        <p class="text-xs text-gray-400">${size}</p>
-                    </div>
-                    <div class="text-green-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                `;
-
-                    filePreview.appendChild(card);
-                };
-
-                // Read the file
-                if (isImage) {
-                    reader.readAsDataURL(file); // Read actual image data
+            // Send to backend
+            fetch('/orders/api/place-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const toast = document.getElementById('copyToast');
+                    toast.classList.remove('hidden');
+                    toast.classList.remove('bg-green-100', 'text-green-800');
+                    toast.classList.add('bg-green-100', 'text-green-800');
+                    toast.textContent = '✓ Order sent! Check your email for confirmation.';
+                    
+                    // Reset form
+                    setTimeout(() => {
+                        document.getElementById('orderForm').reset();
+                        updatePreview();
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        toast.classList.add('hidden');
+                    }, 3000);
                 } else {
-                    reader.onload({ target: { result: null } }); // Just trigger onload for non-images
+                    alert('Error: ' + (data.message || 'Failed to send order'));
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                 }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('Error sending order. Please try again.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             });
         }
 
-        // Drag and Drop Visual Feedback
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.classList.add('border-blue-500', 'bg-blue-50');
-        });
+        function sendOrder(platform) {
+            const message = getMessageBody();
 
-        dropzone.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            dropzone.classList.remove('border-blue-500', 'bg-blue-50');
-        });
-
-        dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropzone.classList.remove('border-blue-500', 'bg-blue-50');
-            fileInput.files = e.dataTransfer.files; // Assign dropped files to input
-            handleFiles({ target: { files: e.dataTransfer.files } }); // Trigger preview
-        });
+            if (platform === 'app') {
+                sendOrderViaApp();
+            }
+            else if (platform === 'whatsapp') {
+                const url = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+                window.open(url, '_blank');
+            }
+            else if (platform === 'email') {
+                const subjectLine = `New Order Request: ${document.getElementById('subject').value || 'Assignment'}`;
+                const url = `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(message)}`;
+                window.location.href = url;
+            }
+            else if (platform === 'instagram') {
+                // Copy text to clipboard because IG doesn't support pre-fill via link
+                navigator.clipboard.writeText(message).then(() => {
+                    const toast = document.getElementById('copyToast');
+                    toast.classList.remove('hidden');
+                    setTimeout(() => {
+                        window.open(`https://instagram.com/${INSTAGRAM_HANDLE}`, '_blank');
+                        toast.classList.add('hidden');
+                    }, 1500);
+                });
+            }
+        }
     </script>
 
 </body>

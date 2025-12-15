@@ -107,18 +107,6 @@
                     <span class="font-medium">Messages</span>
                 </div>
             </a>
-
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Finance</p>
-
-            <a href="/topup"
-                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
-                    </path>
-                </svg>
-                <span class="font-medium">Wallet & Topup</span>
-            </a>
         </nav>
 
         <div class="p-4 border-t border-gray-800">
@@ -245,7 +233,7 @@
                     </div>
 
                     <div class="p-4 bg-white border-t border-gray-200 z-10">
-                        <form action="/messages/send" method="POST" class="flex gap-2 items-center">
+                        <form id="messageForm" class="flex gap-2 items-center">
                             <input type="hidden" name="_csrf" value="{{ csrfToken }}">
                             <input type="hidden" name="orderId" value="{{ currentOrder._id }}">
 
@@ -292,8 +280,97 @@
 
         // Auto-scroll chat to bottom
         const messagesArea = document.getElementById('messagesArea');
-        if (messagesArea) {
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+        function scrollToBottom() {
+            if (messagesArea) {
+                setTimeout(() => {
+                    messagesArea.scrollTop = messagesArea.scrollHeight;
+                }, 50);
+            }
+        }
+        scrollToBottom();
+
+        // Get current order ID from URL or data
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentOrderId = urlParams.get('orderId') || '{{ currentOrder._id | default("") }}';
+
+        // Poll for new messages every 2 seconds
+        setInterval(async () => {
+            if (!currentOrderId) return; // Don't poll if no order selected
+
+            try {
+                const response = await fetch(`/messages/api/check-messages?orderId=${currentOrderId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.hasNewMessages) {
+                        // Reload messages
+                        location.reload();
+                    }
+                }
+            } catch (err) {
+                console.error('Error checking messages:', err);
+            }
+        }, 2000); // Check every 2 seconds
+
+        // Handle form submission with AJAX to avoid full page reload
+        const messageForm = document.getElementById('messageForm');
+        if (messageForm) {
+            messageForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(messageForm);
+                const content = formData.get('content');
+                const orderId = formData.get('orderId');
+                const csrfToken = formData.get('_csrf');
+
+                if (!content.trim()) return;
+
+                // Disable button and show loading state
+                const submitBtn = messageForm.querySelector('button[type="submit"]');
+                const originalHTML = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="animate-spin">⏳</span>';
+
+                try {
+                    const response = await fetch('/messages/api/send', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            orderId: orderId,
+                            content: content,
+                            _csrf: csrfToken
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        // Clear input
+                        messageForm.querySelector('input[name="content"]').value = '';
+                        submitBtn.innerHTML = originalHTML;
+                        submitBtn.disabled = false;
+                        
+                        // Reload messages after a short delay to show the new message
+                        setTimeout(() => {
+                            location.reload();
+                        }, 300);
+                    } else {
+                        alert('Error: ' + (data.message || 'Failed to send message'));
+                        submitBtn.innerHTML = originalHTML;
+                        submitBtn.disabled = false;
+                    }
+                } catch (err) {
+                    console.error('Error sending message:', err);
+                    alert('Error sending message: ' + err.message);
+                    submitBtn.innerHTML = originalHTML;
+                    submitBtn.disabled = false;
+                }
+            });
         }
     </script>
 </body>

@@ -161,9 +161,21 @@ userRouter.get('/profile', requireStudent, async (req, res) => {
     try {
         const currentUser = await User.findById(sessionUser.id);
         const pendingCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Pending' });
+        const inProgressCount = await Order.countDocuments({ userId: sessionUser.id, status: 'In Progress' });
         const completedCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Completed' });
         const cancelledCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Cancelled' });
         const biddingCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Bidding' });
+        const totalOrders = await Order.countDocuments({ userId: sessionUser.id });
+
+        // Get total spent on completed orders
+        const completedOrders = await Order.find({ userId: sessionUser.id, status: 'Completed' });
+        const totalSpent = completedOrders.reduce((sum, order) => sum + (order.price || 0), 0);
+
+        // Get recent 5 orders
+        const recentOrders = await Order.find({ userId: sessionUser.id })
+            .populate('writerId', 'name')
+            .sort({ createdAt: -1 })
+            .limit(5);
 
         const ordersData = await OrderService.getOrdersByUserId(sessionUser);
 
@@ -171,14 +183,18 @@ userRouter.get('/profile', requireStudent, async (req, res) => {
             user: currentUser,
             images: IMAGE_PATHS,
             orders: ordersData.orders || [],
+            recentOrders: recentOrders,
             currentPage: ordersData.currentPage,
             totalPages: ordersData.totalPages,
             stats: {
                 pending: pendingCount,
+                inProgress: inProgressCount,
                 completed: completedCount,
                 cancelled: cancelledCount,
                 biddingOrders: biddingCount || pendingCount,
                 approved: completedCount,
+                total: totalOrders,
+                totalSpent: totalSpent,
             },
         });
     } catch (err) {

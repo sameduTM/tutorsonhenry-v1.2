@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ images.logo }}">
-    <title>Manage Users — Tutorsonhenry</title>
+    <title>Financial Management — Tutorsonhenry</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -18,24 +18,6 @@
             }
         }
     </script>
-    <style>
-        .modal {
-            transition: opacity 0.25s ease;
-        }
-
-        body.modal-active {
-            overflow-x: hidden;
-            overflow-y: hidden !important;
-        }
-
-        .opacity-0 {
-            opacity: 0;
-        }
-
-        .pointer-events-none {
-            pointer-events: none;
-        }
-    </style>
 </head>
 
 <body class="bg-gray-100 font-sans text-gray-900 h-screen flex overflow-hidden">
@@ -68,7 +50,7 @@
                 <span class="font-medium">Orders & Assignments</span>
             </a>
 
-            <a href="/admin/users" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg bg-red-600 text-white shadow-lg shadow-red-900/20 transition-all">
+            <a href="/admin/users" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                 </svg>
@@ -84,7 +66,7 @@
                 <span class="font-medium">Analytics & Reports</span>
             </a>
 
-            <a href="/admin/financial" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-all">
+            <a href="/admin/financial" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg bg-red-600 text-white shadow-lg shadow-red-900/20 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -128,73 +110,100 @@
 
     <div class="flex-1 flex flex-col h-full overflow-hidden">
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-10 flex-shrink-0">
-            <h1 class="text-xl font-bold text-gray-800">Manage Users</h1>
-
-            <div class="flex items-center gap-4">
-                {% if messages.success %}
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-2 text-sm rounded animate-pulse">
-                    {{ messages.success }}
-                </div>
-                {% endif %}
-                {% if messages.error %}
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-2 text-sm rounded animate-shake">
-                    {{ messages.error }}
-                </div>
-                {% endif %}
-            </div>
+            <h1 class="text-xl font-bold text-gray-800">Financial Management</h1>
         </header>
 
         <main class="flex-1 overflow-y-auto p-8 bg-gray-100">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-gray-800">Registered Users</h2>
-                    <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-bold">{{ users.length }} Total</span>
+            <!-- Revenue Breakdown -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Total Revenue</p>
+                    <h3 class="text-3xl font-bold text-emerald-600 mt-2">${{ totalRevenue }}</h3>
+                    <p class="text-xs text-gray-500 mt-2">From all completed orders</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Platform Take</p>
+                    <h3 class="text-3xl font-bold text-rose-600 mt-2">${{ platformTake }}</h3>
+                    <p class="text-xs text-rose-600 mt-2">20% fee collected</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Writer Payouts</p>
+                    <h3 class="text-3xl font-bold text-blue-600 mt-2">${{ writerPayouts }}</h3>
+                    <p class="text-xs text-blue-600 mt-2">80% distributed to writers</p>
+                </div>
+            </div>
+
+            <!-- Writer Earnings Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-bold text-gray-800">Writer Earnings & Payouts</h2>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-50 text-gray-500 uppercase font-bold text-xs">
                             <tr>
-                                <th class="p-4 border-b border-gray-100">User Details</th>
-                                <th class="p-4 border-b border-gray-100">Email</th>
-                                <th class="p-4 border-b border-gray-100">Role</th>
-                                <th class="p-4 border-b border-gray-100">Joined</th>
-                                <th class="p-4 border-b border-gray-100 text-right">Action</th>
+                                <th class="p-4 border-b border-gray-100">Writer</th>
+                                <th class="p-4 border-b border-gray-100">Orders Completed</th>
+                                <th class="p-4 border-b border-gray-100">Total Earnings</th>
+                                <th class="p-4 border-b border-gray-100">Payout (80%)</th>
+                                <th class="p-4 border-b border-gray-100">Status</th>
                             </tr>
                         </thead>
 
                         <tbody class="text-sm text-gray-700 divide-y divide-gray-100">
-                            {% for u in users %}
+                            {% for writer in writerEarnings %}
                             <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 font-semibold">{{ writer.writerInfo[0].name if writer.writerInfo.length > 0 else 'Unknown' }}</td>
+                                <td class="p-4">{{ writer.orderCount }}</td>
+                                <td class="p-4 font-bold text-emerald-600">${{ writer.earnings }}</td>
+                                <td class="p-4 font-bold text-blue-600">${{ (writer.earnings * 0.8) | round }}</td>
                                 <td class="p-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs text-gray-700">
-                                            {{ u.name | first | upper }}
-                                        </div>
-                                        <span class="font-semibold text-gray-900">{{ u.name }}</span>
-                                    </div>
-                                </td>
-                                <td class="p-4 text-gray-600">{{ u.email }}</td>
-                                <td class="p-4">
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold inline-block
-                                        {% if u.role == 'admin' %} bg-red-100 text-red-700
-                                        {% elif u.role == 'writer' %} bg-purple-100 text-purple-700
-                                        {% else %} bg-blue-100 text-blue-700 {% endif %}">
-                                        {{ u.role }}
-                                    </span>
-                                </td>
-                                <td class="p-4 text-gray-500">
-                                    {{ u.createdAt.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) }}
-                                </td>
-                                <td class="p-4 text-right">
-                                    <button onclick="openModal('{{ u._id }}', '{{ u.name }}', '{{ u.role }}')" class="text-indigo-600 font-semibold text-sm hover:text-indigo-800 hover:underline">
-                                        Edit Role
-                                    </button>
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Active</span>
                                 </td>
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="5" class="p-8 text-center text-gray-500">No users found.</td>
+                                <td colspan="5" class="p-8 text-center text-gray-500">No writer earnings data available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-bold text-gray-800">Recent Transactions</h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 text-gray-500 uppercase font-bold text-xs">
+                            <tr>
+                                <th class="p-4 border-b border-gray-100">Order ID</th>
+                                <th class="p-4 border-b border-gray-100">Order Amount</th>
+                                <th class="p-4 border-b border-gray-100">Platform Fee (20%)</th>
+                                <th class="p-4 border-b border-gray-100">Writer Payout (80%)</th>
+                                <th class="p-4 border-b border-gray-100">Date</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="text-sm text-gray-700 divide-y divide-gray-100">
+                            {% for trans in recentTransactions %}
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 font-bold text-blue-600">#{{ trans.orderId.toString().slice(-6) }}</td>
+                                <td class="p-4 font-bold text-emerald-600">${{ trans.amount }}</td>
+                                <td class="p-4 text-rose-600">${{ trans.platformFee }}</td>
+                                <td class="p-4 font-bold text-green-600">${{ trans.writerPayout }}</td>
+                                <td class="p-4 text-gray-500">{{ trans.date.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-gray-500">No transactions available.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -203,79 +212,6 @@
             </div>
         </main>
     </div>
-
-    <!-- Role Edit Modal -->
-    <div id="roleModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
-        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
-
-        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
-            <div class="modal-content py-4 text-left px-6">
-                <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-                    <p class="text-lg font-bold text-gray-800">Edit User Role</p>
-                    <div class="modal-close cursor-pointer p-2 hover:bg-gray-100 rounded-full transition">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="my-5">
-                    <p class="mb-4 font-medium text-gray-600">Changing role for: <span id="modalUserName" class="font-bold text-gray-900"></span></p>
-
-                    <form action="/admin/update-role" method="POST" id="roleForm">
-                        <input type="hidden" name="_csrf" value="{{ csrfToken }}">
-                        <input type="hidden" name="targetUserId" id="modalUserId">
-
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Select New Role</label>
-                        <select name="newRole" id="modalRoleSelect" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white text-gray-900 font-medium">
-                            <option value="student">Student</option>
-                            <option value="writer">Writer / Tutor</option>
-                            <option value="admin">Admin</option>
-                        </select>
-
-                        <div class="mt-6 flex justify-end gap-3">
-                            <button type="button" class="modal-close px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium transition">
-                                Cancel
-                            </button>
-                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition">
-                                Update Role
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const modal = document.querySelector('.modal');
-        const modalUserId = document.getElementById('modalUserId');
-        const modalUserName = document.getElementById('modalUserName');
-        const modalRoleSelect = document.getElementById('modalRoleSelect');
-
-        function openModal(userId, userName, currentRole) {
-            modalUserId.value = userId;
-            modalUserName.innerText = userName;
-            modalRoleSelect.value = currentRole;
-            toggleModal();
-        }
-
-        function toggleModal() {
-            const body = document.querySelector('body');
-            modal.classList.toggle('opacity-0');
-            modal.classList.toggle('pointer-events-none');
-            body.classList.toggle('modal-active');
-        }
-
-        const overlay = document.querySelector('.modal-overlay');
-        overlay.addEventListener('click', toggleModal);
-
-        const closeButtons = document.querySelectorAll('.modal-close');
-        closeButtons.forEach(button => {
-            button.addEventListener('click', toggleModal);
-        });
-    </script>
-
 </body>
 
 </html>

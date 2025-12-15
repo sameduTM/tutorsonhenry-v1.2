@@ -109,7 +109,7 @@
 
         <main class="flex-1 overflow-y-auto p-8 bg-gray-100">
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div class="flex justify-between items-start">
                         <div>
@@ -145,6 +145,22 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div class="flex justify-between items-start">
                         <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">This Month</p>
+                            <h3 class="text-3xl font-bold text-emerald-600 mt-2">${{ stats.monthEarnings }}</h3>
+                        </div>
+                        <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8L5.257 19.757M5 7h-1a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-1">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-start">
+                        <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Earnings</p>
                             <h3 class="text-3xl font-bold text-green-600 mt-2">${{ stats.total }}</h3>
                         </div>
@@ -154,6 +170,55 @@
                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                                 </path>
                             </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-3">Performance</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm text-gray-600">Success Rate</span>
+                                <span class="font-bold text-purple-600">{{ stats.successRate }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-600 h-2 rounded-full" style="width: {{ stats.successRate }}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Completed Orders</span>
+                            <span class="font-bold text-gray-800">{{ stats.completed }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-gray-600 uppercase tracking-wider">Quick Actions</h3>
+                    </div>
+                    <div class="space-y-2">
+                        <a href="/writer/available" class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 font-bold text-sm transition">
+                            Browse Jobs
+                        </a>
+                        <a href="/writer/earnings" class="block w-full text-center px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 font-bold text-sm transition">
+                            View Earnings
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-3">Account</h3>
+                    <div class="space-y-2 text-sm">
+                        <div>
+                            <p class="text-gray-500">Name</p>
+                            <p class="font-semibold text-gray-800">{{ user.name }}</p>
+                        </div>
+                        <div class="pt-2 border-t border-gray-100">
+                            <p class="text-gray-500 text-xs">Role</p>
+                            <p class="font-semibold text-gray-800">Academic Tutor</p>
                         </div>
                     </div>
                 </div>
@@ -250,7 +315,69 @@
                 </div>
             </div>
 
-        </main>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 bg-gray-50">
+                        <h2 class="text-lg font-bold text-gray-800">Recently Completed</h2>
+                    </div>
+                    {% if recentCompleted.length > 0 %}
+                    <div class="divide-y divide-gray-100">
+                        {% for order in recentCompleted %}
+                        <div class="p-4 hover:bg-gray-50 transition">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="font-bold text-purple-600 text-sm">#{{ order._id.toString().slice(-6) }}</p>
+                                    <p class="text-gray-800 font-medium text-sm mt-1">{{ order.title }}</p>
+                                    <p class="text-gray-500 text-xs mt-1">Student: {{ order.userId.name }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-green-600 text-sm">${{ order.price }}</p>
+                                    <p class="text-gray-500 text-xs mt-1">✓ Completed</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-8 text-center text-gray-500">
+                        <p class="text-sm">No completed orders yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">Tips to Earn More</h2>
+                    <div class="space-y-3">
+                        <div class="flex gap-3 items-start">
+                            <div class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span class="text-xs font-bold">1</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-sm text-gray-800">Complete Orders Faster</p>
+                                <p class="text-xs text-gray-600 mt-1">Meeting deadlines increases your rating and reliability score</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span class="text-xs font-bold">2</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-sm text-gray-800">Browse Available Jobs</p>
+                                <p class="text-xs text-gray-600 mt-1">New orders are posted daily - check the available jobs regularly</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start">
+                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span class="text-xs font-bold">3</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-sm text-gray-800">Communicate with Students</p>
+                                <p class="text-xs text-gray-600 mt-1">Quick responses and clear communication lead to better reviews</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
     </div>
 
 </body>

@@ -21,15 +21,56 @@ writerRouter.get('/dashboard', async (req, res) => {
         // Find orders assigned to this writer
         const myOrders = await Order.find({
             writerId: currentWriterId,
-            // FIX: 'In Progress' must match the Enum in your Model exactly (Title Case)
-            status: { $in: ['In progress', 'Completed'] }
+            status: { $in: ['In Progress', 'Completed'] }
         })
             .populate('userId', 'name email')
             .sort({ deadline: 1 });
 
+        // Calculate statistics
+        const activeOrders = await Order.countDocuments({
+            writerId: currentWriterId,
+            status: 'In Progress'
+        });
+
+        const completedOrders = await Order.find({
+            writerId: currentWriterId,
+            status: 'Completed'
+        });
+
+        const totalEarnings = completedOrders.reduce((sum, order) => sum + (order.price || 0), 0);
+
+        // Available jobs for claiming
+        const availableJobs = await Order.countDocuments({
+            writerId: null,
+            status: { $in: ['Pending', 'Bidding'] }
+        });
+
+        // Calculate earnings for current month
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthEarnings = completedOrders
+            .filter(order => new Date(order.createdAt) >= monthStart)
+            .reduce((sum, order) => sum + (order.price || 0), 0);
+
+        // Calculate success rate (completed / total)
+        const totalOrders = await Order.countDocuments({ writerId: currentWriterId });
+        const successRate = totalOrders > 0 ? Math.round((completedOrders.length / totalOrders) * 100) : 0;
+
+        // Get recent completed orders for activity
+        const recentCompleted = completedOrders.slice(0, 5);
+
         res.render('writer/dashboard.html', {
             user: req.session.user,
             orders: myOrders,
+            stats: {
+                active: activeOrders,
+                available: availableJobs,
+                total: totalEarnings,
+                monthEarnings: monthEarnings,
+                successRate: successRate,
+                completed: completedOrders.length,
+            },
+            recentCompleted: recentCompleted,
             images: IMAGE_PATHS,
         });
 

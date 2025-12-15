@@ -49,4 +49,103 @@ messageRouter.post('/messages/send', requireLogin, async (req, res) => {
     }
 });
 
+// GET: Check for new messages (API endpoint for polling)
+messageRouter.get('/messages/api/check-messages', requireLogin, async (req, res) => {
+    try {
+        const { orderId } = req.query;
+        const user = req.session.user;
+
+        if (!orderId) {
+            return res.json({ hasNewMessages: false });
+        }
+
+        // Get the order
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.json({ hasNewMessages: false });
+        }
+
+        // Security Check: Ensure user has access to this order
+        const isOwner = order.userId.toString() === user.id.toString();
+        const isWriter = order.writerId?.toString() === user.id.toString();
+        const isAdmin = user.role === 'admin';
+
+        if (!isOwner && !isWriter && !isAdmin) {
+            return res.json({ hasNewMessages: false });
+        }
+
+        // Get latest message timestamp from session (or use current time - 5 seconds)
+        const lastCheckTime = req.session.lastMessageCheck || new Date(Date.now() - 5000);
+
+        // Check if there are newer messages
+        const Message = require('../models/message');
+        const newMessages = await Message.findOne({
+            orderId: orderId,
+            createdAt: { $gt: lastCheckTime }
+        }).sort({ createdAt: -1 });
+
+        // Update last check time
+        req.session.lastMessageCheck = new Date();
+
+        res.json({
+            hasNewMessages: !!newMessages,
+            lastMessage: newMessages || null
+        });
+    } catch (err) {
+        console.error('Error checking messages:', err);
+        res.status(500).json({ hasNewMessages: false, error: err.message });
+    }
+});
+
+// POST: Send message via JSON API (for AJAX)
+messageRouter.post('/messages/api/send', requireLogin, async (req, res) => {
+    try {
+        const { orderId, content } = req.body;
+        const user = req.session.user;
+
+        // Validate
+        if (!orderId || !content || !content.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing orderId or content'
+            });
+        }
+
+        // Security Check: Ensure user belongs to this order
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found'
+            });
+        }
+
+        const isOwner = order.userId.toString() === user.id.toString();
+        const isWriter = order.writerId?.toString() === user.id.toString();
+        const isAdmin = user.role === 'admin';
+
+        if (!isOwner && !isWriter && !isAdmin) {
+            return res.status(403).json({
+                success: false,
+                message: 'Unauthorized'
+            });
+        }
+
+        // Send Message
+        const message = await MessageService.sendMessage(user, orderId, content);
+
+        res.json({
+            success: true,
+            message: message,
+            content: 'Message sent successfully'
+        });
+    } catch (err) {
+        console.error('Error sending message:', err);
+        res.status(500).json({
+            success: false,
+            message: err.message || 'Failed to send message'
+        });
+    }
+});
+
 module.exports = messageRouter;
