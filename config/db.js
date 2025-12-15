@@ -192,7 +192,8 @@ async function connect() {
             { "name": "Nursing Care of Children (Pediatric)", "category": "ATI VATI", "related_exam": "NCLEX" },
             { "name": "Mental Health", "category": "ATI VATI", "related_exam": "NCLEX" },
             { "name": "Leadership & Management", "category": "ATI VATI", "related_exam": "NCLEX" },
-            { "name": "Predictor / NCLEX Readiness (Comprehensive Predictor)", "category": "ATI VATI", "related_exam": "NCLEX" }
+            { "name": "Predictor / NCLEX Readiness (Comprehensive Predictor)", "category": "ATI VATI", "related_exam": "NCLEX" },
+            {"name": "NCLEX"}
         ]
             , { ordered: false }).catch(e => console.log("ATI modules might already exist."));
 
