@@ -63,25 +63,41 @@ authRouter.post('/login', async (req, res) => {
             return res.redirect('/login');
         }
 
+        console.log('✅ User authenticated:', user.email, 'Role:', user.role);
+
         // Clean up data before session storage
         req.session.user = {
-            id: user.id,
+            id: user._id.toString(), // Convert ObjectId to string
             name: user.name,
             email: user.email,
             role: user.role, // Essential for middleware checks
             walletBalance: user.walletBalance || 0,
+            authProvider: 'email'
         };
 
-        req.session.save(() => {
+        console.log('📝 Email login session created:', req.session.user);
+
+        req.session.save((err) => {
+            if (err) {
+                console.error('❌ Session save error:', err);
+                req.flash('error', 'Session error - please try again');
+                return res.redirect('/login');
+            }
+
+            console.log('✅ Email login session saved');
+            
             // ROLE-BASED REDIRECT LOGIC
             if (user.role === 'admin') {
+                console.log('➡️ Redirecting admin to /admin/dashboard');
                 return res.redirect('/admin/dashboard');
             }
             else if (user.role === 'writer') {
+                console.log('➡️ Redirecting writer to /writer/dashboard');
                 return res.redirect('/writer/dashboard');
             }
             else {
                 // Default: Student
+                console.log('➡️ Redirecting student to /profile');
                 return res.redirect('/profile');
             }
         });

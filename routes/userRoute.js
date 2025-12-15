@@ -176,6 +176,7 @@ userRouter.get('/profile', requireStudent, async (req, res) => {
         }
         
         console.log('✅ User found:', currentUser.email);
+        const pendingCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Pending' }) || 0;
         const inProgressCount = await Order.countDocuments({ userId: sessionUser.id, status: 'In Progress' });
         const completedCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Completed' });
         const cancelledCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Cancelled' });
