@@ -21,14 +21,25 @@ authRouter.get('/login', (req, res) => {
 
 // Debug endpoint to show current OAuth config
 authRouter.get('/auth/debug', (req, res) => {
+    const sessionInfo = req.session.user ? {
+        hasSession: true,
+        userId: req.session.user.id,
+        email: req.session.user.email,
+        role: req.session.user.role,
+        authProvider: req.session.user.authProvider
+    } : {
+        hasSession: false,
+        message: 'No active session - please login first'
+    };
+
     res.json({
-        status: 'OAuth Configuration',
-        googleClientId: process.env.GOOGLE_CLIENT_ID ? '✅ Set' : '❌ Missing',
-        googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ? '✅ Set' : '❌ Missing',
-        googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL || `${process.env.APP_URL || 'http://localhost:3000'}/auth/google/callback`,
-        appUrl: process.env.APP_URL || 'http://localhost:3000',
-        nodeEnv: process.env.NODE_ENV,
-        message: 'Add this callback URL to your Google Cloud Console under "Authorized redirect URIs"'
+        oauth: {
+            googleClientId: process.env.GOOGLE_CLIENT_ID ? '✅ Set' : '❌ Missing',
+            googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL || `${process.env.APP_URL || 'http://localhost:3000'}/auth/google/callback`,
+            appUrl: process.env.APP_URL || 'http://localhost:3000'
+        },
+        session: sessionInfo,
+        environment: process.env.NODE_ENV
     });
 });
 
@@ -243,7 +254,7 @@ authRouter.get('/auth/google/callback',
 
             // Store user in session (Passport handles this)
             req.session.user = {
-                id: req.user._id,
+                id: req.user._id.toString(), // Convert ObjectId to string
                 name: req.user.name,
                 email: req.user.email,
                 role: req.user.role,
@@ -251,7 +262,11 @@ authRouter.get('/auth/google/callback',
                 authProvider: req.user.authProvider
             };
 
-            console.log('📝 Session saved for user:', req.user.email);
+            console.log('📝 Session user object created:', {
+                id: req.session.user.id,
+                email: req.session.user.email,
+                role: req.session.user.role
+            });
 
             req.session.save((err) => {
                 if (err) {

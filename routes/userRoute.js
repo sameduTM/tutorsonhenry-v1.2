@@ -155,12 +155,27 @@ userRouter.get('/topup', requireStudent, (req, res) => {
 
 userRouter.get('/profile', requireStudent, async (req, res) => {
     const sessionUser = req.session.user;
+    
+    console.log('🔍 /profile route accessed');
+    console.log('📋 Session user:', sessionUser);
+    console.log('📋 Session ID:', req.sessionID);
 
-    if (!sessionUser) return res.redirect('/login');
+    if (!sessionUser) {
+        console.log('❌ No session user, redirecting to login');
+        return res.redirect('/login');
+    }
 
     try {
+        console.log('🔎 Fetching user from DB with ID:', sessionUser.id);
         const currentUser = await User.findById(sessionUser.id);
-        const pendingCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Pending' });
+        
+        if (!currentUser) {
+            console.log('❌ User not found in database:', sessionUser.id);
+            req.flash('error', 'User not found. Please login again.');
+            return res.redirect('/login');
+        }
+        
+        console.log('✅ User found:', currentUser.email);
         const inProgressCount = await Order.countDocuments({ userId: sessionUser.id, status: 'In Progress' });
         const completedCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Completed' });
         const cancelledCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Cancelled' });
