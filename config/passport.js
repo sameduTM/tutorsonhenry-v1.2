@@ -7,15 +7,19 @@ const bcrypt = require('bcrypt');
 
 // Serialize user for session
 passport.serializeUser((user, done) => {
-    done(null, user.id);
+    console.log('📝 Serializing user:', user._id);
+    done(null, user._id);
 });
 
 // Deserialize user from session
 passport.deserializeUser(async (id, done) => {
     try {
+        console.log('🔄 Deserializing user:', id);
         const user = await User.findById(id);
+        console.log('✅ User deserialized:', user?.email);
         done(null, user);
     } catch (err) {
+        console.error('❌ Deserialization error:', err);
         done(err);
     }
 });
@@ -44,15 +48,21 @@ passport.use('google', new GoogleStrategy(
     {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback'
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || `${process.env.APP_URL || 'http://localhost:3000'}/auth/google/callback`
     },
     async (accessToken, refreshToken, profile, done) => {
         try {
+            console.log('🔐 Google OAuth Profile Received:', {
+                id: profile.id,
+                displayName: profile.displayName,
+                email: profile.emails?.[0]?.value
+            });
+
             // Check if user exists with Google ID
             let user = await User.findOne({ googleId: profile.id });
 
             if (user) {
-                // User already exists, return it
+                console.log('✅ Existing Google user found:', user.email);
                 return done(null, user);
             }
 
@@ -62,6 +72,7 @@ passport.use('google', new GoogleStrategy(
             if (user) {
                 // User exists with same email but different auth provider
                 // Link Google account to existing user
+                console.log('🔗 Linking Google account to existing user:', user.email);
                 user.googleId = profile.id;
                 user.googleEmail = profile.emails[0].value;
                 user.authProvider = 'google';
@@ -70,6 +81,7 @@ passport.use('google', new GoogleStrategy(
             }
 
             // Create new user
+            console.log('👤 Creating new user from Google profile:', profile.emails[0].value);
             const newUser = new User({
                 name: profile.displayName || profile.emails[0].value.split('@')[0],
                 email: profile.emails[0].value,
@@ -81,8 +93,10 @@ passport.use('google', new GoogleStrategy(
             });
 
             await newUser.save();
+            console.log('✅ New Google user created:', newUser.email);
             return done(null, newUser);
         } catch (err) {
+            console.error('❌ Google OAuth Error:', err);
             return done(err);
         }
     }

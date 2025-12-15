@@ -19,6 +19,19 @@ authRouter.get('/login', (req, res) => {
     });
 });
 
+// Debug endpoint to show current OAuth config
+authRouter.get('/auth/debug', (req, res) => {
+    res.json({
+        status: 'OAuth Configuration',
+        googleClientId: process.env.GOOGLE_CLIENT_ID ? '✅ Set' : '❌ Missing',
+        googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ? '✅ Set' : '❌ Missing',
+        googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL || `${process.env.APP_URL || 'http://localhost:3000'}/auth/google/callback`,
+        appUrl: process.env.APP_URL || 'http://localhost:3000',
+        nodeEnv: process.env.NODE_ENV,
+        message: 'Add this callback URL to your Google Cloud Console under "Authorized redirect URIs"'
+    });
+});
+
 authRouter.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -220,6 +233,14 @@ authRouter.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login', failureMessage: true }),
     (req, res) => {
         try {
+            console.log('✅ Google callback successful, user:', req.user.email);
+            
+            if (!req.user) {
+                console.error('❌ No user object in callback');
+                req.flash('error', 'Authentication failed - user not found');
+                return res.redirect('/login');
+            }
+
             // Store user in session (Passport handles this)
             req.session.user = {
                 id: req.user._id,
@@ -230,21 +251,32 @@ authRouter.get('/auth/google/callback',
                 authProvider: req.user.authProvider
             };
 
-            req.session.save(() => {
+            console.log('📝 Session saved for user:', req.user.email);
+
+            req.session.save((err) => {
+                if (err) {
+                    console.error('❌ Session save error:', err);
+                    req.flash('error', 'Session error - please try again');
+                    return res.redirect('/login');
+                }
+
                 req.flash('success', `Welcome back, ${req.user.name}!`);
                 
                 // Redirect based on role
                 if (req.user.role === 'admin') {
+                    console.log('➡️ Redirecting admin to /admin/dashboard');
                     return res.redirect('/admin/dashboard');
                 } else if (req.user.role === 'writer') {
+                    console.log('➡️ Redirecting writer to /writer/dashboard');
                     return res.redirect('/writer/dashboard');
                 } else {
-                    // Student users go to profile (or my-orders if you prefer)
+                    // Student users go to profile
+                    console.log('➡️ Redirecting student to /profile');
                     return res.redirect('/profile');
                 }
             });
         } catch (err) {
-            console.error("Google OAuth Error:", err);
+            console.error("❌ Google OAuth callback error:", err);
             req.flash('error', 'Google login failed. Please try again.');
             res.redirect('/login');
         }
