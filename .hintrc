@@ -12,6 +12,7 @@
       }
     ],
     "meta-viewport": "off",
-    "compat-api/css": "off"
+    "compat-api/css": "off",
+    "axe/name-role-value": "off"
   }
 }

@@ -6,6 +6,7 @@ const User = require('../models/user');
 // ✅ IMPORT ORDER AND MESSAGE MODELS
 const Order = require('../models/orders');
 const Message = require('../models/message');
+const Gallery = require('../models/gallery');
 
 const userRouter = express.Router();
 
@@ -23,8 +24,19 @@ userRouter.get('/', async (req, res) => {
         onlineClasses,
     } = await UserService.getAllServices();
 
+    const results = await Gallery.find({ type: 'result' }).sort('-createdAt');
+    const chats = await Gallery.find({ type: 'chat' }).sort('-createdAt');
+
+    console.log(chats)
+
     res.render('index.html', {
-        images: IMAGE_PATHS, proctoredExams, onlineExams, atiModules, onlineClasses,
+        images: IMAGE_PATHS,
+        proctoredExams,
+        onlineExams,
+        atiModules,
+        onlineClasses,
+        results,
+        chats,
     });
 });
 
@@ -155,28 +167,12 @@ userRouter.get('/topup', requireStudent, (req, res) => {
 
 userRouter.get('/profile', requireStudent, async (req, res) => {
     const sessionUser = req.session.user;
-    
-    console.log('🔍 /profile route accessed');
-    console.log('📋 Session user:', sessionUser);
-    console.log('📋 Session ID:', req.sessionID);
 
-    if (!sessionUser) {
-        console.log('❌ No session user, redirecting to login');
-        return res.redirect('/login');
-    }
+    if (!sessionUser) return res.redirect('/login');
 
     try {
-        console.log('🔎 Fetching user from DB with ID:', sessionUser.id);
         const currentUser = await User.findById(sessionUser.id);
-        
-        if (!currentUser) {
-            console.log('❌ User not found in database:', sessionUser.id);
-            req.flash('error', 'User not found. Please login again.');
-            return res.redirect('/login');
-        }
-        
-        console.log('✅ User found:', currentUser.email);
-        const pendingCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Pending' }) || 0;
+        const pendingCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Pending' });
         const inProgressCount = await Order.countDocuments({ userId: sessionUser.id, status: 'In Progress' });
         const completedCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Completed' });
         const cancelledCount = await Order.countDocuments({ userId: sessionUser.id, status: 'Cancelled' });

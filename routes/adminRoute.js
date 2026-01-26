@@ -1,7 +1,13 @@
+const { csrfSync } = require('csrf-sync');
+const fs = require('fs').promises;
+
+const path = require('path');
+const Gallery = require('../models/gallery');
 const express = require('express');
 const Order = require('../models/orders');
 const User = require('../models/user');
 const { requireAdmin } = require('../middlewares/roleAuth');
+const upload = require('../middlewares/upload');
 
 const adminRouter = express.Router();
 
@@ -11,6 +17,95 @@ const IMAGE_PATHS = {
 }
 
 adminRouter.use(requireAdmin);
+
+// GET: Render the Management Page
+adminRouter.get('/gallery', async (req, res) => {
+    try {
+        const results = await Gallery.find({ type: 'result' }).sort('-createdAt');
+        const chats = await Gallery.find({ type: 'chat' }).sort('-createdAt');
+
+        res.render('admin/gallery-management.html', {
+            user: req.session.user,
+            results,
+            chats,
+            messages: req.flash(),
+            csrfToken: req.csrfToken(),
+        });
+
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).send('Server Error');
+    }
+});
+
+// POST: Upload Chat Screenshot
+adminRouter.post('/gallery/chat', requireAdmin, upload.single('image'), async (req, res) => {
+    try {
+
+        if (!csrfToken) {
+            req.flash('error', 'CSRF token validation failed');
+            return res.redirect('/admin/gallery');
+        }
+
+        await Gallery.create({
+            type: 'chat',
+            imageUrl: `/uploads/${req.session.user.id}/${req.file.filename}`, // Adjust path based on your static serve setup
+            filename: req.file.filename
+        });
+
+        req.flash('success', 'Chat screenshot uploaded');
+        res.redirect('/admin/gallery');
+    } catch (err) {
+        console.error('Upload error:', err);
+        req.flash('error', 'Upload failed');
+        res.redirect('/admin/gallery');
+    }
+});
+
+// 3. POST: Add Testimonial (No image upload required, but optional)
+adminRouter.post('/gallery/result', requireAdmin, upload.single('image'), async (req, res) => {
+    try {
+
+        const { examName, score } = req.body;
+
+        await Gallery.create({
+            type: 'result',
+            imageUrl: `/uploads/${req.session.user.id}/${req.file.filename}`, // Not used for text testimonials, but required by schema
+            filename: req.file.filename,
+            examName,
+            score,
+        });
+
+        req.flash('success', 'Exam result uploaded successfully');
+        res.redirect('/admin/gallery');
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'Upload failed');
+        res.redirect('/admin/gallery');
+    }
+});
+
+// 4. POST: Delete Item
+adminRouter.post('/gallery/delete/:id', requireAdmin, async (req, res) => {
+    try {
+        const item = await Gallery.findById(req.params.id);
+
+        if (item) {
+            // Delete file from disk
+            const filePath = path.join(__dirname, '../uploads', item.filename);
+            await fs.unlink(filePath).catch(e => console.log('File not found on disk, deleting DB entry only'));
+
+            // Delete from DB
+            await Gallery.findByIdAndDelete(req.params.id);
+        }
+
+        req.flash('success', 'Image deleted');
+        res.redirect('/admin/gallery');
+    } catch (err) {
+        req.flash('error', 'Delete failed');
+        res.redirect('/admin/gallery');
+    }
+});
 
 // GET admin dashboard
 adminRouter.get('/dashboard', async (req, res) => {
@@ -26,7 +121,7 @@ adminRouter.get('/dashboard', async (req, res) => {
         const writers = await User.find({ role: 'writer' }).select('name _id');
 
         // ===== ANALYTICS CALCULATIONS =====
-        
+
         // 1. Pending Count
         const pendingCount = await Order.countDocuments({ status: 'Pending' });
 
@@ -74,15 +169,15 @@ adminRouter.get('/dashboard', async (req, res) => {
             const date = new Date();
             date.setDate(date.getDate() - i);
             date.setHours(0, 0, 0, 0);
-            
+
             const nextDate = new Date(date);
             nextDate.setDate(nextDate.getDate() + 1);
-            
+
             const dayRevenue = await Order.aggregate([
                 { $match: { status: 'Completed', createdAt: { $gte: date, $lt: nextDate } } },
                 { $group: { _id: null, total: { $sum: '$price' } } }
             ]);
-            
+
             revenueData.push(dayRevenue.length > 0 ? dayRevenue[0].total : 0);
             revenueDates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
         }
@@ -91,19 +186,19 @@ adminRouter.get('/dashboard', async (req, res) => {
         const signupData = [];
         const signupDates = [];
         const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        
+
         for (let i = 6; i >= 0; i--) {
             const date = new Date();
             date.setDate(date.getDate() - i);
             date.setHours(0, 0, 0, 0);
-            
+
             const nextDate = new Date(date);
             nextDate.setDate(nextDate.getDate() + 1);
-            
+
             const daySignups = await User.countDocuments({
                 createdAt: { $gte: date, $lt: nextDate }
             });
-            
+
             signupData.push(daySignups);
             signupDates.push(dayNames[date.getDay()]);
         }
@@ -112,7 +207,7 @@ adminRouter.get('/dashboard', async (req, res) => {
         const statusDistribution = await Order.aggregate([
             { $group: { _id: '$status', count: { $sum: 1 } } }
         ]);
-        
+
         const statusData = [0, 0, 0]; // [Pending, InProgress, Completed]
         statusDistribution.forEach(item => {
             if (item._id === 'Pending') statusData[0] = item.count;
@@ -126,21 +221,21 @@ adminRouter.get('/dashboard', async (req, res) => {
             const weekStart = new Date();
             weekStart.setDate(weekStart.getDate() - (week * 7));
             weekStart.setHours(0, 0, 0, 0);
-            
+
             const weekEnd = new Date();
             weekEnd.setDate(weekEnd.getDate() - ((week - 1) * 7));
-            
+
             const newUsersThisWeek = await User.countDocuments({
                 createdAt: { $gte: weekStart, $lt: weekEnd }
             });
-            
+
             // Calculate how many made at least one order
             const activeUsers = await Order.aggregate([
                 { $match: { createdAt: { $gte: weekStart, $lt: weekEnd } } },
                 { $group: { _id: '$userId' } },
                 { $count: 'uniqueUsers' }
             ]);
-            
+
             const activeCount = activeUsers.length > 0 ? activeUsers[0].uniqueUsers : 0;
             const retentionRate = newUsersThisWeek > 0 ? Math.round((activeCount / newUsersThisWeek) * 100) : 0;
             retentionData.unshift(retentionRate);
@@ -163,14 +258,16 @@ adminRouter.get('/dashboard', async (req, res) => {
         // 12. Average Response Time (days between order creation and writer assignment)
         const assignmentTimes = await Order.aggregate([
             { $match: { writerId: { $ne: null }, status: { $in: ['In progress', 'Completed'] } } },
-            { $project: {
-                assignmentTime: {
-                    $divide: [
-                        { $subtract: ['$updatedAt', '$createdAt'] },
-                        1000 * 60 * 60 * 24 // Convert to days
-                    ]
+            {
+                $project: {
+                    assignmentTime: {
+                        $divide: [
+                            { $subtract: ['$updatedAt', '$createdAt'] },
+                            1000 * 60 * 60 * 24 // Convert to days
+                        ]
+                    }
                 }
-            }},
+            },
             { $group: { _id: null, avgTime: { $avg: '$assignmentTime' } } }
         ]);
         const avgResponseTime = assignmentTimes.length > 0 ? Math.round(assignmentTimes[0].avgTime * 10) / 10 : 0;
@@ -214,60 +311,25 @@ adminRouter.get('/dashboard', async (req, res) => {
 });
 
 // POST Assign Order
-adminRouter.post('/assign-order', async (req, res) => {
+adminRouter.post('/update-order', async (req, res) => {
     try {
-        const { orderId, writerId, price } = req.body;
+        const { orderId, orderStatus } = req.body;
 
-        if (!writerId) {
-            req.flash('error', 'Please select a writer');
-            return res.redirect(`/admin/order-details/${orderId}`);
+        if (!orderStatus) {
+            req.flash('error', 'Please select order status');
+            return res.redirect(`/admin/orders/${orderId}`);
         }
 
-        const updateData = {
-            writerId,
-            status: 'In Progress',
-        };
+        const status = await Order.findByIdAndUpdate(orderId, {
+            status: orderStatus,
+        });
 
-        // Update price if provided
-        if (price) {
-            updateData.price = parseFloat(price);
-        }
-
-        await Order.findByIdAndUpdate(orderId, updateData);
-
-        req.flash('success', 'Writer successfully assigned');
-        res.redirect(`/admin/order-details/${orderId}`);
+        req.flash('success', 'Order successfully updated');
+        res.redirect(`/admin/orders/${orderId}`);
     } catch (err) {
         console.error("Assignment Error:", err);
-        req.flash('error', 'Failed to assign a writer');
+        req.flash('error', 'Failed to update order status');
         res.redirect('/admin/dashboard');
-    }
-});
-
-// Update order price
-adminRouter.post('/orders/:id/update-price', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { price } = req.body;
-
-        if (!price || price <= 0) {
-            return res.json({ success: false, message: 'Please provide a valid price' });
-        }
-
-        const order = await Order.findByIdAndUpdate(
-            id,
-            { price: parseFloat(price) },
-            { new: true }
-        );
-
-        if (!order) {
-            return res.json({ success: false, message: 'Order not found' });
-        }
-
-        res.json({ success: true, order });
-    } catch (err) {
-        console.error("Update Price Error:", err);
-        res.json({ success: false, message: 'Failed to update price' });
     }
 });
 
@@ -316,14 +378,19 @@ adminRouter.post('/update-role', async (req, res) => {
 adminRouter.get('/orders/:id', async (req, res) => {
     try {
         const orderId = req.params.id;
+        let statusList = ["Pending", "In Progress", "Completed"];
 
         // fetch order & populate users
         const order = await Order.findById(orderId)
             .populate('userId', 'name email')
             .populate('writerId', 'name email');
-        
+
+        const idx = statusList.indexOf(order.status);
+
+        statusList.splice(idx, 1);
+
         const writers = await User.find({ role: 'writer' });
-        
+
         if (!order) {
             req.flash('error', 'Order not found.');
             return res.redirect('/admin/dashboard');
@@ -334,6 +401,7 @@ adminRouter.get('/orders/:id', async (req, res) => {
             order,
             writers,
             user: req.session.user,
+            statusList,
             images: IMAGE_PATHS,
         });
     } catch (err) {
@@ -497,7 +565,7 @@ adminRouter.get('/messages', async (req, res) => {
     try {
         // Placeholder for message/ticket system
         const messages = [];
-        
+
         res.render('admin/messages.html', {
             user: req.session.user,
             messages,
