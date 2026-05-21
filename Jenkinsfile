@@ -13,6 +13,7 @@ pipeline {
         }
         stage('Test'){
             steps {
+                sh 'ls -al'
                 sh 'git pull'
                 echo 'Testing...'
             }
