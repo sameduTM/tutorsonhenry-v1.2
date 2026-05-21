@@ -26,8 +26,9 @@ userRouter.get('/', async (req, res) => {
 
     const results = await Gallery.find({ type: 'result' }).sort('-createdAt');
     const chats = await Gallery.find({ type: 'chat' }).sort('-createdAt');
+    const user = req.session.id;
 
-    console.log(chats)
+    console.log("Chat-Testimonials:", chats);
 
     res.render('index.html', {
         images: IMAGE_PATHS,
@@ -37,6 +38,7 @@ userRouter.get('/', async (req, res) => {
         onlineClasses,
         results,
         chats,
+        user,
     });
 });
 

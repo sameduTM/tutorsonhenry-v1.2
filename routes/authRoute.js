@@ -63,6 +63,8 @@ authRouter.post('/login', async (req, res) => {
             return res.redirect('/login');
         }
 
+        // localStorage.setItem('user', user);
+
         console.log('✅ User authenticated:', user.email, 'Role:', user.role);
 
         // Clean up data before session storage
@@ -85,7 +87,7 @@ authRouter.post('/login', async (req, res) => {
             }
 
             console.log('✅ Email login session saved');
-            
+
             // ROLE-BASED REDIRECT LOGIC
             if (user.role === 'admin') {
                 console.log('➡️ Redirecting admin to /admin/dashboard');
@@ -256,12 +258,12 @@ authRouter.get('/auth/google', passport.authenticate('google', {
 }));
 
 // Google OAuth callback
-authRouter.get('/auth/google/callback', 
+authRouter.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login', failureMessage: true }),
     (req, res) => {
         try {
             console.log('✅ Google callback successful, user:', req.user.email);
-            
+
             if (!req.user) {
                 console.error('❌ No user object in callback');
                 req.flash('error', 'Authentication failed - user not found');
@@ -292,7 +294,7 @@ authRouter.get('/auth/google/callback',
                 }
 
                 req.flash('success', `Welcome back, ${req.user.name}!`);
-                
+
                 // Redirect based on role
                 if (req.user.role === 'admin') {
                     console.log('➡️ Redirecting admin to /admin/dashboard');
