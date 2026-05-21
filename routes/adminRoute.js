@@ -41,12 +41,12 @@ adminRouter.get('/gallery', async (req, res) => {
 // POST: Upload Chat Screenshot
 adminRouter.post('/gallery/chat', requireAdmin, upload.single('image'), async (req, res) => {
     try {
-
+        /*
         if (!csrfToken) {
             req.flash('error', 'CSRF token validation failed');
-            return res.redirect('/admin/gallery');
+           return res.redirect('/admin/gallery');
         }
-
+        */
         await Gallery.create({
             type: 'chat',
             imageUrl: `/uploads/${req.session.user.id}/${req.file.filename}`, // Adjust path based on your static serve setup
