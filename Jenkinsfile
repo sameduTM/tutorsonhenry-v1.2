@@ -6,19 +6,21 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'ssh kenwanyama@173.212.221.240'
-                sh 'cd tutorsonhenry-v1.2'
-                sh 'git pull'
+                sh 'ssh -q kenwanyama@173.212.221.240'
+                sh 'sleep 5'
                 echo 'Building...'
             }
         }
         stage('Test'){
             steps {
+                sh 'cd tutorsonhenry-v1.2'
+                sh 'git pull'
                 echo 'Testing...'
             }
         }
         stage('Deploy') {
             steps {
+                sh 'sleep 2'
                 sh 'pm2 reload'
                 sh 'Deployed' //
             }
