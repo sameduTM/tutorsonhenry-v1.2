@@ -16,12 +16,12 @@ pipeline {
                 sh 'ls -al'
                 sh 'git pull'
                 echo 'Testing...'
+                sh 'sleep 2'
+                sh 'pm2 reload'
             }
         }
         stage('Deploy') {
             steps {
-                sh 'sleep 2'
-                sh 'pm2 reload'
                 sh 'Deployed' //
             }
         }
