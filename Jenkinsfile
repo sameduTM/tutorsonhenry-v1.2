@@ -6,15 +6,13 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'ssh -q kenwanyama@173.212.221.240'
+                sh 'ssh kenwanyama@173.212.221.240'
                 sh 'sleep 5'
                 echo 'Building...'
             }
         }
         stage('Test'){
             steps {
-                sh 'ls -al'
-                sh 'cd tutorsonhenry-v1.2'
                 sh 'git pull'
                 echo 'Testing...'
             }
